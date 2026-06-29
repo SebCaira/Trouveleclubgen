@@ -1,0 +1,1885 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0f">
+<title>Trouve l'Équipe — Générateur</title>
+<link rel="icon" href="data:image/svg+xml;utf8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 192 192%27%3E%3Crect width=%27192%27 height=%27192%27 rx=%2740%27 fill=%27%2310b981%27/%3E%3Ctext x=%2796%27 y=%27138%27 font-size=%27120%27 font-family=%27Arial%27 font-weight=%27900%27 text-anchor=%27middle%27 fill=%27white%27%3ET%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a0f;
+    --bg-card:#14141f;
+    --bg-input:#1e1e2e;
+    --border:#2a2a3e;
+    --text:#f0f0f5;
+    --text-dim:#8a8a9e;
+    --green:#10b981;
+    --green-hover:#059669;
+    --yellow:#f59e0b;
+    --orange:#f97316;
+    --red:#ef4444;
+    --red-hover:#dc2626;
+    --blue:#3b82f6;
+    /* TikTok stage red palette */
+    --stage-red-1:#b8121a;
+    --stage-red-2:#7a0a10;
+    --stage-red-3:#3a0608;
+    --radius:16px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+  body{display:flex;flex-direction:column}
+  button,input,select{font:inherit;color:inherit}
+  button{cursor:pointer;border:0;background:transparent}
+  .anton{font-family:'Anton',sans-serif;letter-spacing:2px}
+
+  /* TOPBAR — header style QuizFootGen */
+  .topbar{display:flex;align-items:center;gap:14px;padding:18px 28px;border-bottom:1px solid var(--border);background:rgba(20,20,31,0.9);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:sticky;top:0;z-index:50}
+  .brand{display:flex;align-items:center;gap:14px}
+  .brand-mark{width:44px;height:44px;border-radius:12px;background:var(--green);display:grid;place-items:center;color:#fff;font-family:'Anton',sans-serif;font-size:26px;line-height:1;box-shadow:0 4px 12px rgba(16,185,129,0.3)}
+  .brand-title{font-family:'Anton',sans-serif;font-size:24px;line-height:1;letter-spacing:2.5px}
+  .brand-title .accent{color:var(--green)}
+  .brand-title small{display:block;font-family:'Inter',sans-serif;font-weight:500;font-size:11px;color:var(--text-dim);letter-spacing:.1em;text-transform:uppercase;margin-top:5px}
+  .tabs{display:flex;gap:4px;margin-left:auto;background:var(--bg-input);padding:5px;border-radius:12px;border:1px solid var(--border)}
+  .tab{padding:9px 16px;border-radius:8px;color:var(--text-dim);font-weight:700;font-size:13px;letter-spacing:.5px;transition:.15s}
+  .tab:hover{color:var(--text)}
+  .tab.active{background:var(--green);color:#fff;box-shadow:0 2px 8px rgba(16,185,129,.35)}
+  .toolbar{display:flex;gap:8px;margin-left:10px;align-items:center;position:relative}
+  .toolbar-actions{display:flex;gap:8px;align-items:center}
+  .menu-toggle{display:none;width:38px;height:38px;justify-content:center;padding:0;font-size:22px;line-height:1}
+  .btn{padding:12px 18px;border-radius:12px;background:var(--bg-input);border:1px solid var(--border);color:var(--text);font-family:'Inter',sans-serif;font-weight:700;font-size:14px;letter-spacing:.5px;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+  .btn:hover{background:var(--border);transform:translateY(-1px)}
+  .btn-primary{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 2px 8px rgba(16,185,129,.25)}
+  .btn-primary:hover{background:var(--green-hover);border-color:var(--green-hover);transform:translateY(-1px);box-shadow:0 4px 14px rgba(16,185,129,.4)}
+  .btn-ghost{background:transparent;border-color:var(--border)}
+  .btn-ghost:hover{background:var(--bg-input)}
+  .btn-danger{background:var(--bg-input);color:var(--red);border-color:var(--border)}
+  .btn-danger:hover{background:var(--red);color:#fff;border-color:var(--red)}
+  .btn:disabled{opacity:.5;cursor:not-allowed;transform:none !important}
+
+  main{flex:1;display:flex;min-height:0}
+  .view{display:none;flex:1;min-height:0}
+  .view.active{display:flex}
+
+  /* EDITOR */
+  #view-editor{flex-direction:row}
+  .editor-pane{flex:1;padding:32px;overflow:auto;border-right:1px solid var(--border);min-width:0;max-width:1200px;margin:0 auto}
+  .preview-pane{width:480px;display:flex;flex-direction:column;align-items:center;padding:32px 24px;gap:16px;background:var(--bg);overflow:auto;border-left:1px solid var(--border)}
+
+  .form-section{background:var(--bg-card);border:1px solid var(--border);border-left:6px solid var(--green);border-radius:20px;padding:24px 28px;margin-bottom:24px}
+  .form-section.intermediate{border-left-color:var(--yellow)}
+  .form-section.pro{border-left-color:var(--orange)}
+  .form-section.expert{border-left-color:var(--red)}
+  .form-section.blue{border-left-color:var(--blue)}
+  .form-section h3{margin:0 0 16px;font-family:'Anton',sans-serif;font-size:18px;letter-spacing:2px;color:var(--text)}
+  .form-section h3 .badge{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:10px;background:var(--green);color:#fff;font-family:'Anton',sans-serif;font-size:18px;margin-right:10px;vertical-align:middle}
+  .form-section.intermediate h3 .badge{background:var(--yellow)}
+  .form-section.pro h3 .badge{background:var(--orange)}
+  .form-section.expert h3 .badge{background:var(--red)}
+  .form-section.blue h3 .badge{background:var(--blue)}
+  .field{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+  .field:last-child{margin-bottom:0}
+  .field label{font-size:13px;color:var(--text-dim);font-weight:600;letter-spacing:.3px}
+  .field input[type=text], .field select{background:var(--bg-input);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-family:'Inter',sans-serif;font-size:14px;color:var(--text);outline:none;transition:.15s}
+  .field input[type=text]:focus, .field select:focus{border-color:var(--green);background:var(--bg)}
+  .row{display:flex;gap:14px}
+  .row > .field{flex:1}
+
+  /* Theme picker — choix de fond du stage */
+  .theme-picker{display:flex;flex-wrap:wrap;gap:8px}
+  .theme-opt{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;background:var(--bg-input);border:2px solid var(--border);color:var(--text);font-family:'Inter',sans-serif;font-weight:600;font-size:13px;transition:.15s}
+  .theme-opt:hover{border-color:var(--text-dim);transform:translateY(-1px)}
+  .theme-opt.active{border-color:var(--green);background:var(--bg)}
+  .theme-opt .swatch{width:22px;height:22px;border-radius:50%;border:1px solid rgba(255,255,255,.15);flex-shrink:0;box-shadow:inset 0 -3px 6px rgba(0,0,0,.4)}
+  .swatch.t-red{background:radial-gradient(circle at 35% 30%, #d83040, #7a0a10 70%)}
+  .swatch.t-green{background:radial-gradient(circle at 35% 30%, #2cb478, #0a6a3e 70%)}
+  .swatch.t-blue{background:radial-gradient(circle at 35% 30%, #4f7fd8, #143270 70%)}
+  .swatch.t-dark{background:radial-gradient(circle at 35% 30%, #3a3a4a, #0a0a14 70%)}
+  .swatch.t-purple{background:radial-gradient(circle at 35% 30%, #9d4ef5, #4c1d95 70%)}
+  .swatch.t-gold{background:radial-gradient(circle at 35% 30%, #d8a040, #6e4d12 70%)}
+
+  /* Mode picker — choix Trouve le club / Trouve la sélection */
+  .mode-picker{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+  .mode-opt{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:14px;background:var(--bg-input);border:2px solid var(--border);color:var(--text);text-align:left;transition:.15s}
+  .mode-opt:hover{border-color:var(--text-dim);transform:translateY(-2px)}
+  .mode-opt.active{border-color:var(--green);background:var(--bg);box-shadow:0 4px 14px rgba(16,185,129,.18)}
+  .mode-opt .mode-icon{font-size:22px;letter-spacing:2px;flex-shrink:0}
+  .mode-opt .mode-text{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .mode-opt .mode-text strong{font-family:'Anton',sans-serif;font-size:17px;letter-spacing:1.2px;color:var(--text)}
+  .mode-opt .mode-text span{font-size:12px;color:var(--text-dim);font-weight:600}
+
+  /* Answer preview — bouton qui montre le logo/drapeau choisi pour la réponse */
+  .answer-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .answer-preview{
+    width:80px;height:80px;border-radius:50%;background:var(--bg-input);border:2px dashed var(--border);
+    display:grid;place-items:center;cursor:pointer;transition:.15s;overflow:hidden;flex-shrink:0;position:relative
+  }
+  .answer-preview:hover{border-color:var(--green);transform:scale(1.05)}
+  .answer-preview.filled{border:none;background:#fff;box-shadow:inset 0 -6px 12px rgba(0,0,0,.3), 0 4px 12px rgba(0,0,0,.4)}
+  .answer-preview.filled::after{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 30% 25%, rgba(255,255,255,.45), transparent 50%);pointer-events:none}
+  .answer-preview > svg{width:100%;height:100%;display:block}
+  .answer-preview > img.club-img{width:100%;height:100%;display:block;object-fit:contain;padding:10%;background:#fff;border-radius:50%}
+  .answer-preview .placeholder{font-size:11px;color:var(--text-dim);font-weight:700;text-align:center;line-height:1.2}
+  .answer-hint{font-size:12px;color:var(--text-dim);line-height:1.4}
+
+  .mini-pitch-wrap{background:var(--bg-input);border:1px solid var(--border);border-radius:14px;padding:18px}
+  .mini-pitch-hint{font-size:12px;color:var(--text-dim);margin-bottom:14px;line-height:1.5}
+  .mini-pitch{aspect-ratio:9/14;width:100%;max-width:380px;margin:0 auto;background:linear-gradient(180deg,#0f6b3a 0%,#0a5230 50%,#08401f 100%);border-radius:14px;position:relative;overflow:hidden;border:1px solid #08401f;box-shadow:inset 0 0 60px rgba(0,0,0,.35)}
+  .mini-pitch::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(180deg, rgba(255,255,255,.04) 0 24px, transparent 24px 48px);pointer-events:none}
+  .mini-pitch svg.pitch-lines{position:absolute;inset:0;width:100%;height:100%}
+  .pos-slot{position:absolute;width:15%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;display:grid;place-items:center;background:#fff;box-shadow:inset 0 -6px 10px rgba(0,0,0,.35), 0 4px 10px rgba(0,0,0,.5);cursor:pointer;border:2px dashed rgba(255,255,255,.35);transition:.18s;overflow:hidden}
+  .pos-slot:hover{transform:translate(-50%,-50%) scale(1.1);box-shadow:inset 0 -6px 10px rgba(0,0,0,.35), 0 6px 18px rgba(16,185,129,.5);border-color:var(--green)}
+  .pos-slot.filled{border:none}
+  .pos-slot > svg.flag-svg{width:100%;height:100%;display:block}
+  .pos-slot > img.club-img{width:100%;height:100%;display:block;object-fit:contain;padding:8%;background:#fff}
+  .pos-slot .placeholder{font-size:24px;color:#444;font-weight:900;pointer-events:none}
+  .pos-slot::after{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 30% 25%, rgba(255,255,255,.5), transparent 50%);pointer-events:none}
+
+  /* FLAG PICKER */
+  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+  .modal-bg.open{display:flex}
+  .modal{width:100%;max-width:700px;max-height:80vh;background:var(--bg-card);border:1px solid var(--border);border-radius:20px;display:flex;flex-direction:column;box-shadow:0 32px 80px rgba(0,0,0,.7)}
+  .modal-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+  .modal-head h2{margin:0;font-family:'Anton',sans-serif;font-size:18px;letter-spacing:1.5px}
+  .modal-head input{flex:1;background:var(--bg-input);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-family:'Inter',sans-serif;font-size:14px;color:var(--text);outline:none}
+  .modal-head input:focus{border-color:var(--green)}
+  .modal-close{padding:8px 12px;color:var(--text-dim);border-radius:8px;font-size:18px;line-height:1}
+  .modal-close:hover{background:var(--bg-input);color:var(--text)}
+  .flag-grid{padding:18px;overflow:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:12px}
+  .flag-opt{display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px 6px;border-radius:12px;cursor:pointer;transition:.15s;border:1px solid transparent;background:var(--bg-input)}
+  .flag-opt:hover{border-color:var(--green);transform:translateY(-2px)}
+  .flag-opt .ball{width:52px;height:52px;border-radius:50%;overflow:hidden;position:relative;box-shadow:inset 0 -4px 8px rgba(0,0,0,.4), 0 2px 8px rgba(0,0,0,.45);background:#fff}
+  .flag-opt .ball svg{width:100%;height:100%;display:block}
+  .flag-opt .ball img.club-img{width:100%;height:100%;display:block;object-fit:contain;padding:8%;background:#fff}
+  .flag-opt .ball::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 25%, rgba(255,255,255,.5), transparent 50%)}
+  .flag-opt .name{font-size:11px;color:var(--text);text-align:center;line-height:1.2;font-weight:600}
+  .flag-clear{padding:10px 14px;border-radius:10px;color:var(--red);font-weight:700;font-size:13px;border:1px solid var(--border)}
+  .flag-clear:hover{background:var(--red);color:#fff;border-color:var(--red)}
+
+  /* CARD STAGE — TikTok visual */
+  .card-stage{width:380px;aspect-ratio:9/16;border-radius:20px;overflow:hidden;position:relative;flex-shrink:0;box-shadow:0 24px 60px rgba(0,0,0,.6), 0 0 0 1px var(--border)}
+  .card-stage.large{width:min(420px, 88vw)}
+  .stage-bg{
+    position:absolute;inset:0;
+    background:
+      radial-gradient(ellipse 70% 50% at 25% 18%, rgba(220,55,55,.55), transparent 60%),
+      radial-gradient(ellipse 60% 70% at 80% 85%, rgba(20,2,2,.85), transparent 50%),
+      radial-gradient(ellipse at 50% 45%, var(--stage-red-1) 0%, var(--stage-red-2) 38%, var(--stage-red-3) 72%, #120103 100%);
+  }
+  .stage-bg.theme-green{
+    background:
+      radial-gradient(ellipse 70% 50% at 25% 18%, rgba(55,200,120,.45), transparent 60%),
+      radial-gradient(ellipse 60% 70% at 80% 85%, rgba(2,18,8,.85), transparent 50%),
+      radial-gradient(ellipse at 50% 45%, #149960 0%, #0a6a3e 38%, #06401f 72%, #021008 100%);
+  }
+  .stage-bg.theme-blue{
+    background:
+      radial-gradient(ellipse 70% 50% at 25% 18%, rgba(80,140,255,.45), transparent 60%),
+      radial-gradient(ellipse 60% 70% at 80% 85%, rgba(2,5,20,.85), transparent 50%),
+      radial-gradient(ellipse at 50% 45%, #2554a8 0%, #143270 38%, #0a1840 72%, #02060f 100%);
+  }
+  .stage-bg.theme-dark{
+    background:
+      radial-gradient(ellipse 70% 50% at 25% 18%, rgba(140,140,160,.18), transparent 60%),
+      radial-gradient(ellipse 60% 70% at 80% 85%, rgba(0,0,0,.9), transparent 50%),
+      radial-gradient(ellipse at 50% 45%, #2a2a3a 0%, #14141f 45%, #08080c 100%);
+  }
+  .stage-bg.theme-purple{
+    background:
+      radial-gradient(ellipse 70% 50% at 25% 18%, rgba(180,80,240,.45), transparent 60%),
+      radial-gradient(ellipse 60% 70% at 80% 85%, rgba(15,5,30,.85), transparent 50%),
+      radial-gradient(ellipse at 50% 45%, #6d28d9 0%, #4c1d95 38%, #2e1065 72%, #0a0220 100%);
+  }
+  .stage-bg.theme-gold{
+    background:
+      radial-gradient(ellipse 70% 50% at 25% 18%, rgba(245,200,80,.4), transparent 60%),
+      radial-gradient(ellipse 60% 70% at 80% 85%, rgba(20,10,2,.85), transparent 50%),
+      radial-gradient(ellipse at 50% 45%, #b08020 0%, #6e4d12 38%, #3a2a08 72%, #100a02 100%);
+  }
+  .stage-bg::before{
+    content:"";position:absolute;inset:0;
+    background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity:.6;mix-blend-mode:overlay;
+  }
+  .stage-bg::after{
+    content:"";position:absolute;inset:0;
+    background:radial-gradient(ellipse 110% 60% at 50% 100%, rgba(0,0,0,.55), transparent 60%);
+    pointer-events:none;
+  }
+  .stage-pitch{position:absolute;left:7%;right:7%;top:8%;bottom:22%}
+  .stage-pitch > svg.pitch-svg{width:100%;height:100%;display:block;position:absolute;inset:0}
+  .stage-pitch > svg.pitch-svg path,
+  .stage-pitch > svg.pitch-svg circle,
+  .stage-pitch > svg.pitch-svg rect,
+  .stage-pitch > svg.pitch-svg line{stroke:rgba(255,255,255,.85);fill:none;stroke-width:.6;vector-effect:non-scaling-stroke}
+  .stage-flag{position:absolute;width:22%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;overflow:hidden;box-shadow:inset 0 -8px 14px rgba(0,0,0,.5), 0 6px 14px rgba(0,0,0,.55);background:#fff;z-index:2}
+  .stage-flag > svg.flag-svg{width:100%;height:100%;display:block}
+  .stage-flag > img.club-img{width:100%;height:100%;display:block;object-fit:contain;padding:7%;background:#fff}
+  .stage-flag::after{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 32% 22%, rgba(255,255,255,.55), rgba(255,255,255,.05) 45%, transparent 55%);pointer-events:none}
+  /* Mode nation: logos clubs sans fond ni cercle, juste le logo avec drop-shadow */
+  .stage-flag.is-club{background:transparent;border-radius:0;overflow:visible;box-shadow:none}
+  .stage-flag.is-club > img.club-img{background:transparent;padding:0;border-radius:0;filter:drop-shadow(0 3px 6px rgba(0,0,0,.6)) drop-shadow(0 0 2px rgba(0,0,0,.4))}
+  .stage-flag.is-club::after{display:none}
+  .stage-bottom{position:absolute;left:0;right:0;bottom:18px;display:flex;flex-direction:column;align-items:center;gap:8px;padding:0 18px}
+  .stage-bottom .label{font-family:'Anton',sans-serif;font-weight:400;font-size:24px;letter-spacing:.08em;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.55)}
+  .progress-bar{width:80%;height:8px;border-radius:6px;background:rgba(255,255,255,.22);overflow:hidden}
+  .progress-bar > div{height:100%;background:#fff;border-radius:6px;transition:width .35s ease;box-shadow:0 0 12px rgba(255,255,255,.5)}
+  .progress-count{font-family:'Anton',sans-serif;font-size:18px;color:#fff;letter-spacing:.1em}
+  .stage-watermark{position:absolute;right:14px;top:14px;color:rgba(255,255,255,.55);font-size:11px;font-weight:600;letter-spacing:.04em}
+
+  .stage-intro, .stage-outro, .stage-reveal{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center;z-index:6}
+  .stage-intro .logo, .stage-outro .logo{width:140px;height:140px;border-radius:30px;background:var(--green);display:grid;place-items:center;color:#fff;font-family:'Anton',sans-serif;box-shadow:0 8px 24px rgba(16,185,129,.45), inset 0 -4px 14px rgba(0,0,0,.25);margin-bottom:24px;position:relative}
+  .stage-intro .logo .name, .stage-outro .logo .name{font-size:20px;line-height:1.05;text-align:center;letter-spacing:2px}
+  .stage-intro .logo .name span, .stage-outro .logo .name span{display:block}
+  .stage-intro h1{margin:0;font-family:'Anton',sans-serif;font-size:42px;line-height:1;color:#fff;letter-spacing:2px;text-shadow:0 3px 10px rgba(0,0,0,.55)}
+  .stage-intro h1 em{font-style:normal;color:var(--yellow)}
+  .stage-intro p{margin:14px 0 0;font-size:14px;color:rgba(255,255,255,.9);font-weight:600;letter-spacing:.5px}
+  .stage-outro h1{margin:0;font-family:'Anton',sans-serif;font-size:26px;line-height:1.1;color:#fff;letter-spacing:1.5px;text-shadow:0 3px 10px rgba(0,0,0,.55)}
+  .stage-outro h2{margin:18px 0 0;font-family:'Anton',sans-serif;font-size:24px;line-height:1.15;color:#fff;letter-spacing:1.5px;text-shadow:0 3px 10px rgba(0,0,0,.55)}
+  .stage-outro h2 em{font-style:normal;color:var(--yellow)}
+  .stage-reveal{background:linear-gradient(180deg, rgba(0,0,0,.7), rgba(0,0,0,.88))}
+  .stage-reveal .reveal-label{font-family:'Inter',sans-serif;font-size:13px;letter-spacing:.22em;color:var(--green);text-transform:uppercase;font-weight:800;margin-bottom:18px}
+  /* Drapeau (mode nation): vrai drapeau rectangulaire qui flotte */
+  .stage-reveal .reveal-symbol.is-flag{
+    width:300px;height:200px;
+    margin-bottom:24px;
+    border-radius:6px;overflow:hidden;
+    box-shadow:0 18px 40px rgba(0,0,0,.55), 0 0 0 2px rgba(255,255,255,.18);
+    position:relative;
+  }
+  .stage-reveal .reveal-symbol.is-flag svg{width:100%;height:100%;display:block}
+  /* Subtil effet "drapeau au vent" : léger reflet diagonal */
+  .stage-reveal .reveal-symbol.is-flag::after{
+    content:"";position:absolute;inset:0;border-radius:6px;
+    background:linear-gradient(135deg, rgba(255,255,255,.22) 0%, rgba(255,255,255,0) 35%, rgba(0,0,0,.12) 100%);
+    pointer-events:none;
+  }
+  /* Logo club (mode team): pas de cercle blanc, juste le logo en grand */
+  .stage-reveal .reveal-symbol.is-club{
+    width:280px;height:280px;
+    margin-bottom:24px;
+    display:flex;align-items:center;justify-content:center;
+    filter:drop-shadow(0 14px 30px rgba(0,0,0,.6));
+  }
+  .stage-reveal .reveal-symbol.is-club img.club-img{
+    width:100%;height:100%;display:block;object-fit:contain;
+    background:transparent;padding:0;border-radius:0;
+  }
+  .stage-reveal .reveal-name{font-family:'Anton',sans-serif;font-size:36px;color:#fff;line-height:1;letter-spacing:1.5px;text-shadow:0 4px 14px rgba(0,0,0,.7);max-width:90%;text-align:center}
+
+  /* LIST */
+  #view-list{padding:32px;flex-direction:column;overflow:auto}
+  .list-header{display:flex;align-items:center;gap:14px;margin-bottom:24px;max-width:1200px;width:100%;margin-inline:auto}
+  .list-header h2{margin:0;font-family:'Anton',sans-serif;font-size:28px;letter-spacing:2px}
+  .list-header .count{color:var(--text-dim);font-size:14px;font-weight:600}
+  .list-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;max-width:1200px;width:100%;margin-inline:auto}
+  .list-card{background:var(--bg-card);border:1px solid var(--border);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;transition:.2s}
+  .list-card:hover{border-color:var(--green);transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,.4)}
+  .list-card .thumb{aspect-ratio:9/16;background:#1a0204;position:relative;overflow:hidden;border-bottom:1px solid var(--border)}
+  .list-card .thumb .card-stage{width:100%;border-radius:0;box-shadow:none}
+  .list-card .meta{padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+  .list-card .meta .name{font-family:'Anton',sans-serif;font-size:18px;line-height:1.15;letter-spacing:1px}
+  .list-card .meta .formation{font-size:11px;color:var(--text-dim);font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+  .list-card .actions{display:flex;gap:8px;padding:0 16px 14px}
+  .list-card .actions .btn{flex:1;padding:9px 12px;font-size:12px;justify-content:center}
+  .empty{text-align:center;padding:60px 24px;color:var(--text-dim);background:linear-gradient(135deg, rgba(16,185,129,.08), rgba(59,130,246,.08));border:1px solid var(--border);border-radius:20px;max-width:560px;margin:60px auto}
+  .empty h3{color:var(--text);margin:0 0 10px;font-family:'Anton',sans-serif;font-size:24px;letter-spacing:2px}
+  .empty p{margin:0 0 20px;font-size:14px;line-height:1.5}
+
+  /* QUIZ */
+  #view-quiz{flex-direction:column;align-items:center;justify-content:flex-start;padding:24px;gap:18px;background:#000;min-height:0;overflow:auto}
+
+  /* Mode présentation : faux plein écran via CSS (marche sur iOS Safari aussi)
+     Combiné avec :fullscreen pour desktop quand l'API native est dispo */
+  #view-quiz.presenting,
+  #view-quiz:fullscreen{
+    position:fixed;inset:0;z-index:9999;
+    padding:0;gap:0;justify-content:center;align-items:center;
+    background:#000;overflow:hidden;
+    width:100vw;height:100vh;height:100dvh;
+  }
+  #view-quiz.presenting .quiz-topbar,
+  #view-quiz:fullscreen .quiz-topbar,
+  #view-quiz.presenting .quiz-controls,
+  #view-quiz:fullscreen .quiz-controls,
+  #view-quiz.presenting .quiz-help,
+  #view-quiz:fullscreen .quiz-help{display:none !important}
+  #view-quiz.presenting .quiz-stage-wrap,
+  #view-quiz:fullscreen .quiz-stage-wrap{gap:0;width:100%;height:100%;justify-content:center;align-items:center}
+  #view-quiz.presenting .quiz-stage-wrap .nav,
+  #view-quiz:fullscreen .quiz-stage-wrap .nav{display:none}
+  #view-quiz.presenting #quiz-card-host,
+  #view-quiz:fullscreen #quiz-card-host{display:flex;align-items:center;justify-content:center;height:100%;width:100%}
+  #view-quiz.presenting .card-stage,
+  #view-quiz.presenting .card-stage.large,
+  #view-quiz:fullscreen .card-stage,
+  #view-quiz:fullscreen .card-stage.large{
+    width:auto;height:100vh;height:100dvh;max-height:100vh;max-height:100dvh;
+    aspect-ratio:9 / 16;max-width:100vw;
+    border-radius:0;box-shadow:none;
+  }
+  /* Quand on est en mode présentation, on cache aussi la topbar globale */
+  body.presenting-mode .topbar{display:none}
+  body.presenting-mode main{padding:0;margin:0}
+  /* Bouton ✕ pour quitter le mode lecture (caché par défaut, apparaît au tap) */
+  .exit-presentation{display:none;position:fixed;top:max(18px, env(safe-area-inset-top));right:max(18px, env(safe-area-inset-right));z-index:10000;width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:20px;line-height:1;border:2px solid rgba(255,255,255,.3);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:opacity .3s ease;opacity:0;pointer-events:none}
+  .exit-presentation:hover{background:rgba(239,68,68,.85);border-color:var(--red);transform:scale(1.08)}
+  /* Croix visible uniquement quand on tape (classe .show-exit temporaire) */
+  #view-quiz.presenting .exit-presentation,
+  #view-quiz:fullscreen .exit-presentation{display:block}
+  #view-quiz.presenting.show-exit .exit-presentation,
+  #view-quiz:fullscreen.show-exit .exit-presentation{opacity:1;pointer-events:auto}
+  .quiz-topbar{display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:center;padding:14px 20px;background:var(--bg-card);border:1px solid var(--border);border-radius:14px}
+  .quiz-settings{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .quiz-settings label{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--text-dim);letter-spacing:.4px}
+  .quiz-settings input[type=number]{width:54px;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;padding:6px 8px;font-family:'Inter',sans-serif;font-size:13px;color:var(--text);text-align:center;outline:none}
+  .quiz-settings input[type=number]:focus{border-color:var(--green)}
+  .quiz-playback{display:flex;gap:8px}
+  .quiz-controls{display:flex;align-items:center;gap:10px}
+  .quiz-controls .nav{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--bg-card);color:var(--text);font-size:22px;border:1px solid var(--border);transition:.15s}
+  .quiz-controls .nav:hover{background:var(--green);border-color:var(--green);color:#fff}
+  .quiz-controls .nav:disabled{opacity:.3;cursor:not-allowed;background:var(--bg-card);color:var(--text);border-color:var(--border)}
+  .quiz-controls .step-info{font-family:'Anton',sans-serif;font-size:18px;color:var(--text-dim);letter-spacing:2px;min-width:120px;text-align:center}
+  .quiz-stage-wrap{display:flex;align-items:center;gap:18px}
+  .quiz-help{color:var(--text-dim);font-size:11px;font-weight:600;text-align:center}
+  .quiz-help kbd{display:inline-block;padding:2px 6px;border:1px solid var(--border);border-bottom-width:2px;border-radius:4px;font-family:inherit;font-size:10px;background:var(--bg-card);margin:0 2px}
+
+  /* Timer bar — barre fine en haut du stage qui se vide pendant la question */
+  .timer-bar{
+    position:absolute;top:0;left:0;right:0;height:6px;
+    background:rgba(0,0,0,.45);
+    z-index:8;overflow:hidden;
+  }
+  .timer-bar > div{
+    height:100%;width:100%;
+    background:var(--green);
+    box-shadow:0 0 12px rgba(16,185,129,.7);
+    transition:width .1s linear, background .25s, box-shadow .25s;
+  }
+  .timer-bar > div.warn{background:var(--yellow);box-shadow:0 0 14px rgba(245,158,11,.8)}
+  .timer-bar > div.danger{background:var(--red);box-shadow:0 0 16px rgba(239,68,68,.9)}
+
+  /* Recap card final */
+  .stage-recap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 24px;text-align:center;z-index:6}
+  .stage-recap h1{margin:0 0 18px;font-family:'Anton',sans-serif;font-size:30px;line-height:1;color:#fff;letter-spacing:2px;text-shadow:0 3px 10px rgba(0,0,0,.55)}
+  .stage-recap h1 em{font-style:normal;color:var(--yellow)}
+  .recap-list{display:flex;flex-direction:column;gap:8px;width:100%;max-width:320px}
+  .recap-item{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:8px 12px;backdrop-filter:blur(4px)}
+  .recap-item .num{font-family:'Anton',sans-serif;font-size:18px;color:var(--yellow);min-width:24px;text-align:center;letter-spacing:1px}
+  .recap-item .answer{font-family:'Anton',sans-serif;font-size:15px;color:#fff;letter-spacing:1px;line-height:1.1;text-align:left;flex:1}
+
+  .pill{display:inline-block;background:var(--green);color:#fff;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.5px}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg-card);color:var(--text);padding:12px 20px;border-radius:24px;font-weight:600;font-size:13px;z-index:300;opacity:0;transition:opacity .25s;pointer-events:none;box-shadow:0 8px 28px rgba(0,0,0,.6);border:1px solid var(--green)}
+  .toast.show{opacity:1}
+
+  /* CLOUD SYNC */
+  .sync-indicator{display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:10px;background:var(--bg-input);border:1px solid var(--border);font-size:12px;font-weight:600}
+  .sync-indicator .dot{width:8px;height:8px;border-radius:50%;background:var(--text-dim);transition:.2s}
+  .sync-indicator.ok .dot{background:var(--green);box-shadow:0 0 8px rgba(16,185,129,.5)}
+  .sync-indicator.syncing .dot{background:var(--yellow);animation:pulseSync 1s infinite}
+  .sync-indicator.error .dot{background:var(--red)}
+  .sync-indicator.offline .dot{background:var(--text-dim)}
+  @keyframes pulseSync{0%,100%{opacity:.4}50%{opacity:1}}
+
+  /* Login modal (full screen) */
+  .login-bg{position:fixed;inset:0;background:radial-gradient(ellipse at center, #14141f 0%, #0a0a0f 70%);z-index:500;display:none;align-items:center;justify-content:center;padding:24px}
+  .login-bg.open{display:flex}
+  .login-box{width:100%;max-width:420px;background:var(--bg-card);border:1px solid var(--border);border-radius:24px;padding:36px 32px;text-align:center;box-shadow:0 32px 80px rgba(0,0,0,.7)}
+  .login-box .logo-big{width:80px;height:80px;border-radius:20px;background:var(--green);display:grid;place-items:center;color:#fff;font-family:'Anton',sans-serif;font-size:48px;line-height:1;margin:0 auto 22px;box-shadow:0 8px 20px rgba(16,185,129,.4)}
+  .login-box h1{margin:0 0 8px;font-family:'Anton',sans-serif;font-size:32px;letter-spacing:2px}
+  .login-box h1 .accent{color:var(--green)}
+  .login-box .subtitle{margin:0 0 28px;color:var(--text-dim);font-size:13px;line-height:1.5}
+  .login-box .field{margin-bottom:16px}
+  .login-box input[type=text]{width:100%;background:var(--bg-input);border:2px solid var(--border);border-radius:12px;padding:14px 18px;font-family:'Anton',sans-serif;font-size:18px;color:var(--text);outline:none;text-align:center;letter-spacing:3px;text-transform:uppercase;transition:.15s}
+  .login-box input[type=text]:focus{border-color:var(--green);background:var(--bg)}
+  .login-box input[type=text].error{border-color:var(--red);animation:shake .3s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .login-box .btn-primary{width:100%;justify-content:center;padding:14px;font-size:14px}
+  .login-error{color:var(--red);font-size:13px;font-weight:600;min-height:18px;margin-top:10px}
+  .login-skip{margin-top:18px;color:var(--text-dim);font-size:12px;background:transparent;border:0;text-decoration:underline;cursor:pointer}
+  .login-skip:hover{color:var(--text)}
+
+  @media (max-width:980px){
+    #view-editor{flex-direction:column}
+    .editor-pane{border-right:0;border-bottom:1px solid var(--border);padding:20px}
+    .preview-pane{width:100%}
+    .tabs{margin-left:0}
+    .topbar{flex-wrap:wrap;gap:10px}
+  }
+
+  @media (max-width:640px){
+    /* TOPBAR mobile : ligne 1 = brand + sync + menu ⋯ ; ligne 2 = tabs full-width */
+    .topbar{padding:10px 14px;gap:10px;flex-wrap:wrap}
+    .brand{gap:10px;min-width:0;flex:1}
+    .brand-mark{width:38px;height:38px;border-radius:10px;font-size:22px;flex-shrink:0}
+    .brand-title{font-size:17px;letter-spacing:1.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;line-height:1.05}
+    .brand-title small{display:none}
+
+    /* Toolbar : sync indicator + bouton menu ⋯ (les actions deviennent un dropdown) */
+    .toolbar{margin-left:0;gap:8px;align-items:center;flex-shrink:0}
+    .sync-indicator{padding:0;width:34px;height:34px;border-radius:50%;justify-content:center;border-width:1px;flex-shrink:0}
+    .sync-indicator #sync-text{display:none}
+    .sync-indicator .dot{width:10px;height:10px}
+    .menu-toggle{display:inline-flex;background:var(--bg-input);border:1px solid var(--border);color:var(--text)}
+    .menu-toggle.open{background:var(--green);border-color:var(--green);color:#fff}
+
+    /* Le toolbar-actions devient un menu déroulant */
+    .toolbar-actions{
+      display:none;position:absolute;top:calc(100% + 8px);right:14px;
+      background:var(--bg-card);border:1px solid var(--border);border-radius:14px;
+      padding:8px;flex-direction:column;gap:4px;min-width:180px;
+      box-shadow:0 12px 30px rgba(0,0,0,.5);z-index:200;
+    }
+    .toolbar-actions.open{display:flex}
+    .toolbar-actions .btn{width:100%;justify-content:flex-start;padding:10px 12px;font-size:14px;gap:10px;background:transparent;border:0}
+    .toolbar-actions .btn:hover{background:var(--bg-input);transform:none}
+    .toolbar-actions .btn .btn-label{display:inline}
+
+    /* Tabs en pleine largeur sur ligne 2 */
+    .tabs{order:99;width:100%;margin:0;padding:3px;flex-shrink:0}
+    .tab{padding:9px 8px;font-size:12px;letter-spacing:.3px;flex:1;text-align:center;justify-content:center;min-width:0}
+    .tab .pill{padding:2px 6px;font-size:10px;margin-left:4px !important}
+
+    /* QUIZ topbar compacte */
+    .quiz-topbar{padding:10px 12px;gap:10px;border-radius:12px;width:100%;max-width:100%}
+    .quiz-settings{gap:10px;justify-content:center;width:100%;flex-wrap:wrap}
+    .quiz-settings label{font-size:11px;gap:4px}
+    .quiz-settings input[type=number]{width:46px;padding:5px 6px;font-size:12px}
+    .quiz-playback{gap:6px;width:100%;justify-content:center}
+    .quiz-playback .btn{padding:10px 14px;font-size:13px;flex:1;max-width:200px;justify-content:center}
+
+    /* Editor sections plus compactes */
+    .form-section{padding:18px 16px;border-radius:14px}
+    .form-section h3{font-size:15px}
+    .form-section h3 .badge{width:26px;height:26px;font-size:14px;border-radius:8px}
+
+    /* Mode picker */
+    .mode-picker{grid-template-columns:1fr;gap:8px}
+    .mode-opt{padding:11px 12px;gap:10px}
+    .mode-opt .mode-icon{font-size:18px}
+    .mode-opt .mode-text strong{font-size:15px}
+    .mode-opt .mode-text span{font-size:11px}
+
+    /* Theme picker */
+    .theme-picker{gap:6px}
+    .theme-opt{padding:6px 10px;font-size:12px;gap:6px}
+    .theme-opt .swatch{width:18px;height:18px}
+
+    /* List view */
+    #view-list{padding:18px 14px}
+    .list-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+    .list-card .meta .name{font-size:15px}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">T</div>
+    <div class="brand-title">TROUVE <span class="accent">L'ÉQUIPE</span><small>Générateur • Unis par le Foot</small></div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="editor">Éditeur</button>
+    <button class="tab" data-tab="list">Mes cartes <span id="count-badge" class="pill" style="margin-left:6px"></span></button>
+    <button class="tab" data-tab="quiz">Mode quiz</button>
+  </nav>
+  <div class="toolbar">
+    <div class="sync-indicator offline" id="sync-indicator" title="État de la synchronisation cloud">
+      <span class="dot"></span><span id="sync-text">Hors ligne</span>
+    </div>
+    <button class="btn btn-ghost menu-toggle" id="btn-menu" title="Plus d'actions" aria-expanded="false">⋯</button>
+    <div class="toolbar-actions" id="toolbar-actions">
+      <button class="btn btn-ghost" id="btn-import" title="Importer un JSON">📤<span class="btn-label">Importer</span></button>
+      <button class="btn btn-ghost" id="btn-export" title="Exporter en JSON">📥<span class="btn-label">Exporter</span></button>
+      <button class="btn btn-ghost" id="btn-demo" title="Charger la démo">⭐<span class="btn-label">Démo</span></button>
+      <button class="btn btn-ghost" id="btn-logout" style="display:none" title="Se déconnecter">🚪<span class="btn-label">Déconnexion</span></button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <section id="view-editor" class="view active">
+    <div class="editor-pane">
+
+      <div class="form-section" style="border-left-color:var(--green)">
+        <h3><span class="badge">1</span>Mode de quiz</h3>
+        <div class="mode-picker" id="mode-picker">
+          <button class="mode-opt active" data-mode="team">
+            <div class="mode-icon">🌍 → 🏟️</div>
+            <div class="mode-text">
+              <strong>Trouve le club</strong>
+              <span>11 drapeaux → quel club ?</span>
+            </div>
+          </button>
+          <button class="mode-opt" data-mode="nation">
+            <div class="mode-icon">🏟️ → 🌍</div>
+            <div class="mode-text">
+              <strong>Trouve la sélection</strong>
+              <span>11 clubs → quelle sélection ?</span>
+            </div>
+          </button>
+        </div>
+        <div class="mode-hint" id="mode-hint" style="margin-top:14px;color:var(--text-dim);font-size:13px"></div>
+      </div>
+
+      <div class="form-section intermediate">
+        <h3><span class="badge">2</span>Équipe / Sélection à deviner</h3>
+        <div class="row">
+          <div class="field">
+            <label for="team-name">Nom (la réponse)</label>
+            <input type="text" id="team-name" placeholder="ex. Real Madrid 2018 — finale C1">
+          </div>
+          <div class="field" style="max-width:220px">
+            <label for="formation">Formation</label>
+            <select id="formation">
+              <option value="4-3-3">4-3-3</option>
+              <option value="4-4-2">4-4-2</option>
+              <option value="4-2-3-1">4-2-3-1</option>
+              <option value="3-5-2">3-5-2</option>
+              <option value="3-4-3">3-4-3</option>
+              <option value="4-3-1-2">4-3-1-2 (losange)</option>
+              <option value="5-3-2">5-3-2</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label id="answer-label">Logo du club (la réponse)</label>
+          <div class="answer-row">
+            <button class="answer-preview" id="answer-preview" title="Cliquer pour choisir">
+              <span class="placeholder">+ Choisir</span>
+            </button>
+            <div class="answer-hint" id="answer-hint">Logo qui apparaîtra à la révélation</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section pro">
+        <h3><span class="badge">3</span>Composition</h3>
+        <div class="mini-pitch-wrap">
+          <div class="mini-pitch-hint">Clique sur une position pour choisir le drapeau / club du joueur qui occupait ce poste.</div>
+          <div class="mini-pitch" id="mini-pitch">
+            <svg class="pitch-lines" viewBox="0 0 100 160" preserveAspectRatio="none">
+              <rect x="2" y="2" width="96" height="156" stroke="rgba(255,255,255,.9)" stroke-width=".5" fill="none" vector-effect="non-scaling-stroke"/>
+              <line x1="2" y1="80" x2="98" y2="80" stroke="rgba(255,255,255,.9)" stroke-width=".5" vector-effect="non-scaling-stroke"/>
+              <circle cx="50" cy="80" r="10" stroke="rgba(255,255,255,.9)" stroke-width=".5" fill="none" vector-effect="non-scaling-stroke"/>
+              <rect x="28" y="2" width="44" height="18" stroke="rgba(255,255,255,.9)" stroke-width=".5" fill="none" vector-effect="non-scaling-stroke"/>
+              <rect x="38" y="2" width="24" height="8" stroke="rgba(255,255,255,.9)" stroke-width=".5" fill="none" vector-effect="non-scaling-stroke"/>
+              <rect x="28" y="140" width="44" height="18" stroke="rgba(255,255,255,.9)" stroke-width=".5" fill="none" vector-effect="non-scaling-stroke"/>
+              <rect x="38" y="150" width="24" height="8" stroke="rgba(255,255,255,.9)" stroke-width=".5" fill="none" vector-effect="non-scaling-stroke"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section expert">
+        <h3><span class="badge">4</span>Actions</h3>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-primary" id="btn-save">💾 Enregistrer la carte</button>
+          <button class="btn" id="btn-new">➕ Nouvelle carte</button>
+          <button class="btn btn-danger" id="btn-delete" style="display:none">🗑️ Supprimer</button>
+        </div>
+      </div>
+
+      <div class="form-section blue">
+        <h3><span class="badge">5</span>Paramètres du quiz</h3>
+        <div class="row">
+          <div class="field">
+            <label for="watermark">Watermark (coin haut-droit)</label>
+            <input type="text" id="watermark" placeholder="@unisparlefoot" value="@unisparlefoot">
+          </div>
+          <div class="field" style="max-width:240px">
+            <label for="quiz-title">Titre du label</label>
+            <input type="text" id="quiz-title" value="TROUVE L'EQUIPE">
+          </div>
+        </div>
+        <div class="field">
+          <label>Fond du stage</label>
+          <div class="theme-picker" id="theme-picker">
+            <button class="theme-opt" data-theme="red" title="Rouge"><span class="swatch t-red"></span>Rouge</button>
+            <button class="theme-opt" data-theme="green" title="Vert"><span class="swatch t-green"></span>Vert</button>
+            <button class="theme-opt" data-theme="blue" title="Bleu nuit"><span class="swatch t-blue"></span>Bleu nuit</button>
+            <button class="theme-opt" data-theme="dark" title="Noir"><span class="swatch t-dark"></span>Noir</button>
+            <button class="theme-opt" data-theme="purple" title="Violet"><span class="swatch t-purple"></span>Violet</button>
+            <button class="theme-opt" data-theme="gold" title="Doré"><span class="swatch t-gold"></span>Doré</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="preview-pane">
+      <div style="font-family:'Anton',sans-serif;font-size:14px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase">Aperçu — format TikTok</div>
+      <div id="preview-card-host"></div>
+      <div style="font-size:12px;color:var(--text-dim);text-align:center;max-width:340px;line-height:1.5">
+        Cet aperçu reflète la carte en cours d'édition. Va dans <strong style="color:var(--green)">Mode quiz</strong> pour voir tout le quiz en séquence.
+      </div>
+    </aside>
+  </section>
+
+  <section id="view-list" class="view">
+    <div class="list-header">
+      <h2>Mes cartes</h2>
+      <span class="count" id="count-text"></span>
+      <div style="margin-left:auto;display:flex;gap:8px">
+        <button class="btn btn-primary" id="btn-new-from-list">➕ Nouvelle carte</button>
+      </div>
+    </div>
+    <div id="list-grid-host"></div>
+  </section>
+
+  <section id="view-quiz" class="view">
+    <div class="quiz-topbar">
+      <div class="quiz-settings">
+        <label>Cartes <input type="number" id="qs-count" min="1" max="20" value="6"></label>
+        <label>Question <input type="number" id="qs-question" min="3" max="30" value="10"> s</label>
+        <label>Réponse <input type="number" id="qs-reveal" min="1" max="10" value="3"> s</label>
+      </div>
+      <div class="quiz-playback">
+        <button class="btn btn-primary" id="btn-autoplay">▶ Lecture auto</button>
+        <button class="btn" id="btn-stop" style="display:none">⏹ Arrêter</button>
+        <button class="btn" id="btn-fullscreen">⛶ Plein écran</button>
+      </div>
+    </div>
+    <div class="quiz-stage-wrap">
+      <button class="nav" id="quiz-prev" title="Précédent (←)">‹</button>
+      <div id="quiz-card-host"></div>
+      <button class="nav" id="quiz-next" title="Suivant (→)">›</button>
+    </div>
+    <button class="exit-presentation" id="btn-exit-presentation" title="Quitter le mode lecture">✕</button>
+    <div class="quiz-controls">
+      <div class="step-info" id="quiz-step-info">Intro</div>
+      <button class="btn btn-primary" id="btn-reveal" style="display:none">★ Révéler la réponse</button>
+    </div>
+    <div class="quiz-help"><kbd>←</kbd> <kbd>→</kbd> naviguer · <kbd>R</kbd> révéler · <kbd>Espace</kbd> play/pause · <kbd>F</kbd> plein écran</div>
+  </section>
+
+</main>
+
+<div class="modal-bg" id="flag-modal">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <h2>Choisir le drapeau</h2>
+      <input type="text" id="flag-search" placeholder="Rechercher un pays…">
+      <button class="flag-clear" id="flag-clear">Effacer</button>
+      <button class="modal-close" id="flag-close">✕</button>
+    </div>
+    <div class="flag-grid" id="flag-grid"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="file-input" accept="application/json" style="display:none">
+
+<!-- LOGIN MODAL (cloud sync) -->
+<div class="login-bg" id="login-modal">
+  <div class="login-box">
+    <div class="logo-big">T</div>
+    <h1>TROUVE <span class="accent">L'ÉQUIPE</span></h1>
+    <p class="subtitle">Entre ton code d'accès pour synchroniser tes cartes dans le cloud<br>(le même que QuizFootGen)</p>
+    <div class="field">
+      <input type="text" id="login-input" placeholder="CODE D'ACCÈS" autocomplete="off" maxlength="32">
+    </div>
+    <button class="btn btn-primary" id="login-btn">SE CONNECTER</button>
+    <div class="login-error" id="login-error"></div>
+    <button class="login-skip" id="login-skip">Continuer sans synchronisation</button>
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   INLINE SVG FLAGS — viewBox "0 0 60 40", no external requests.
+   ========================================================================= */
+
+// Helper: generate vertical or horizontal tricolor as SVG content
+function tri(orient, c1, c2, c3){
+  if(orient === "v"){
+    return `<rect width="20" height="40" fill="${c1}"/><rect x="20" width="20" height="40" fill="${c2}"/><rect x="40" width="20" height="40" fill="${c3}"/>`;
+  }
+  return `<rect width="60" height="13.34" fill="${c1}"/><rect y="13.33" width="60" height="13.34" fill="${c2}"/><rect y="26.67" width="60" height="13.33" fill="${c3}"/>`;
+}
+// Nordic cross
+function nordic(bg, cross){
+  return `<rect width="60" height="40" fill="${bg}"/><rect y="16" width="60" height="8" fill="${cross}"/><rect x="18" width="8" height="40" fill="${cross}"/>`;
+}
+// 5-pointed star path centered
+function star(cx, cy, r, fill){
+  const points = [];
+  for(let i=0;i<10;i++){
+    const ang = -Math.PI/2 + i*Math.PI/5;
+    const rad = i%2===0 ? r : r*0.4;
+    points.push(`${(cx+Math.cos(ang)*rad).toFixed(2)},${(cy+Math.sin(ang)*rad).toFixed(2)}`);
+  }
+  return `<polygon points="${points.join(' ')}" fill="${fill}"/>`;
+}
+
+const FLAGS = {
+  // EUROPE
+  "fr":{n:"France",svg:tri("v","#002654","#fff","#CE1126")},
+  "es":{n:"Espagne",svg:`<rect width="60" height="40" fill="#AA151B"/><rect y="10" width="60" height="20" fill="#F1BF00"/><rect x="10" y="16" width="6" height="8" fill="#AA151B" rx="1"/>`},
+  "it":{n:"Italie",svg:tri("v","#009246","#fff","#CE2B37")},
+  "de":{n:"Allemagne",svg:tri("h","#000","#DD0000","#FFCE00")},
+  "pt":{n:"Portugal",svg:`<rect width="60" height="40" fill="#FF0000"/><rect width="24" height="40" fill="#006600"/><circle cx="24" cy="20" r="5" fill="#FFD250" stroke="#000" stroke-width=".5"/><rect x="21" y="17" width="6" height="6" fill="#fff" stroke="#000" stroke-width=".3"/>`},
+  "nl":{n:"Pays-Bas",svg:tri("h","#AE1C28","#fff","#21468B")},
+  "be":{n:"Belgique",svg:tri("v","#000","#FAE042","#ED2939")},
+  "gb-eng":{n:"Angleterre",svg:`<rect width="60" height="40" fill="#fff"/><rect y="16" width="60" height="8" fill="#CE1124"/><rect x="26" width="8" height="40" fill="#CE1124"/>`},
+  "gb-sct":{n:"Écosse",svg:`<rect width="60" height="40" fill="#0065BD"/><path d="M0,0 L60,40 M60,0 L0,40" stroke="#fff" stroke-width="6"/>`},
+  "gb-wls":{n:"Pays de Galles",svg:`<rect width="60" height="20" fill="#fff"/><rect y="20" width="60" height="20" fill="#00B140"/><path d="M20,12 q4,-4 8,0 t8,0 q2,2 4,4 t-4,4 q-4,4 -8,0 t-8,0 q-2,-2 -4,-4 t4,-4 z" fill="#D00C27"/>`},
+  "gb-nir":{n:"Irlande du Nord",svg:`<rect width="60" height="40" fill="#fff"/><rect x="26" width="8" height="40" fill="#CD2032"/><rect y="16" width="60" height="8" fill="#CD2032"/><circle cx="30" cy="20" r="5" fill="#fff" stroke="#CD2032" stroke-width=".8"/><polygon points="30,16 31,19 34,19 31.5,21 32.5,24 30,22.5 27.5,24 28.5,21 26,19 29,19" fill="#CD2032"/>`},
+  "ie":{n:"Irlande",svg:tri("v","#169B62","#fff","#FF883E")},
+  "hr":{n:"Croatie",svg:`<rect width="60" height="13.34" fill="#FF0000"/><rect y="13.33" width="60" height="13.34" fill="#fff"/><rect y="26.67" width="60" height="13.33" fill="#171796"/><g transform="translate(22 10)"><rect width="16" height="13" fill="#fff" stroke="#171796" stroke-width=".5"/><rect width="4" height="3.25" fill="#FF0000"/><rect x="8" width="4" height="3.25" fill="#FF0000"/><rect x="4" y="3.25" width="4" height="3.25" fill="#FF0000"/><rect x="12" y="3.25" width="4" height="3.25" fill="#FF0000"/><rect y="6.5" width="4" height="3.25" fill="#FF0000"/><rect x="8" y="6.5" width="4" height="3.25" fill="#FF0000"/><rect x="4" y="9.75" width="4" height="3.25" fill="#FF0000"/><rect x="12" y="9.75" width="4" height="3.25" fill="#FF0000"/></g>`},
+  "rs":{n:"Serbie",svg:tri("h","#C6363C","#0C4076","#fff")},
+  "ba":{n:"Bosnie",svg:`<rect width="60" height="40" fill="#002F6C"/><polygon points="15,40 45,0 60,0 60,40" fill="#FECB00"/><polygon points="15,40 45,0 60,0 60,40" fill="#FECB00"/>`},
+  "al":{n:"Albanie",svg:`<rect width="60" height="40" fill="#E41E20"/><text x="30" y="27" text-anchor="middle" font-size="22" fill="#000" font-family="serif" font-weight="900">♦</text>`},
+  "mk":{n:"Macédoine du Nord",svg:`<rect width="60" height="40" fill="#D82126"/><circle cx="30" cy="20" r="6" fill="#F8E92E"/><g stroke="#F8E92E" stroke-width="3"><line x1="30" y1="20" x2="0" y2="0"/><line x1="30" y1="20" x2="60" y2="0"/><line x1="30" y1="20" x2="0" y2="40"/><line x1="30" y1="20" x2="60" y2="40"/><line x1="30" y1="20" x2="0" y2="20"/><line x1="30" y1="20" x2="60" y2="20"/><line x1="30" y1="20" x2="30" y2="0"/><line x1="30" y1="20" x2="30" y2="40"/></g>`},
+  "si":{n:"Slovénie",svg:tri("h","#fff","#005DA4","#ED1C24")},
+  "sk":{n:"Slovaquie",svg:`${tri("h","#fff","#0B4EA2","#EE1C25")}<rect x="8" y="10" width="10" height="18" fill="#EE1C25" stroke="#fff" stroke-width=".5"/><rect x="11" y="13" width="4" height="9" fill="#fff"/>`},
+  "cz":{n:"Tchéquie",svg:`<rect width="60" height="20" fill="#fff"/><rect y="20" width="60" height="20" fill="#D7141A"/><polygon points="0,0 30,20 0,40" fill="#11457E"/>`},
+  "pl":{n:"Pologne",svg:`<rect width="60" height="20" fill="#fff"/><rect y="20" width="60" height="20" fill="#DC143C"/>`},
+  "hu":{n:"Hongrie",svg:tri("h","#CD2A3E","#fff","#436F4D")},
+  "ro":{n:"Roumanie",svg:tri("v","#002B7F","#FCD116","#CE1126")},
+  "bg":{n:"Bulgarie",svg:tri("h","#fff","#00966E","#D62612")},
+  "gr":{n:"Grèce",svg:`<rect width="60" height="40" fill="#0D5EAF"/><rect y="4.44" width="60" height="4.44" fill="#fff"/><rect y="13.33" width="60" height="4.44" fill="#fff"/><rect y="22.22" width="60" height="4.44" fill="#fff"/><rect y="31.11" width="60" height="4.44" fill="#fff"/><rect width="24" height="22.2" fill="#0D5EAF"/><rect x="10" width="4" height="22.2" fill="#fff"/><rect y="8.88" width="24" height="4.44" fill="#fff"/>`},
+  "tr":{n:"Turquie",svg:`<rect width="60" height="40" fill="#E30A17"/><circle cx="22" cy="20" r="8" fill="#fff"/><circle cx="24" cy="20" r="6.5" fill="#E30A17"/>${star(34,20,3,"#fff")}`},
+  "ua":{n:"Ukraine",svg:`<rect width="60" height="20" fill="#0057B7"/><rect y="20" width="60" height="20" fill="#FFD500"/>`},
+  "ru":{n:"Russie",svg:tri("h","#fff","#0039A6","#D52B1E")},
+  "se":{n:"Suède",svg:nordic("#006AA7","#FECC00")},
+  "no":{n:"Norvège",svg:`<rect width="60" height="40" fill="#BA0C2F"/><rect y="14" width="60" height="12" fill="#fff"/><rect x="15" width="12" height="40" fill="#fff"/><rect y="16" width="60" height="8" fill="#00205B"/><rect x="17" width="8" height="40" fill="#00205B"/>`},
+  "dk":{n:"Danemark",svg:nordic("#C8102E","#fff")},
+  "fi":{n:"Finlande",svg:nordic("#fff","#003580")},
+  "is":{n:"Islande",svg:`<rect width="60" height="40" fill="#02529C"/><rect y="14" width="60" height="12" fill="#fff"/><rect x="15" width="12" height="40" fill="#fff"/><rect y="16" width="60" height="8" fill="#DC1E35"/><rect x="17" width="8" height="40" fill="#DC1E35"/>`},
+  "at":{n:"Autriche",svg:tri("h","#ED2939","#fff","#ED2939")},
+  "ch":{n:"Suisse",svg:`<rect width="60" height="40" fill="#DA291C"/><rect x="26" y="11" width="8" height="18" fill="#fff"/><rect x="21" y="16" width="18" height="8" fill="#fff"/>`},
+  "me":{n:"Monténégro",svg:`<rect width="60" height="40" fill="#C40308" stroke="#D4AF37" stroke-width="2"/><circle cx="30" cy="20" r="6" fill="#D4AF37"/>`},
+  "xk":{n:"Kosovo",svg:`<rect width="60" height="40" fill="#244AA5"/><g fill="#D0A650">${star(20,12,2,"#fff")}${star(28,8,2,"#fff")}${star(36,8,2,"#fff")}${star(44,12,2,"#fff")}</g><path d="M25,30 q5,-12 10,0 z" fill="#D0A650"/>`},
+
+  // AMERIQUES
+  "br":{n:"Brésil",svg:`<rect width="60" height="40" fill="#009C3B"/><polygon points="30,4 56,20 30,36 4,20" fill="#FFDF00"/><circle cx="30" cy="20" r="7" fill="#002776"/><path d="M22,21 q8,-5 16,0" stroke="#fff" stroke-width="1" fill="none"/>`},
+  "ar":{n:"Argentine",svg:`<rect width="60" height="13.33" fill="#74ACDF"/><rect y="13.33" width="60" height="13.34" fill="#fff"/><rect y="26.67" width="60" height="13.33" fill="#74ACDF"/><circle cx="30" cy="20" r="3.5" fill="#F6B40E"/>`},
+  "uy":{n:"Uruguay",svg:`<rect width="60" height="40" fill="#fff"/><rect width="60" height="4.44" fill="#0038A8"/><rect y="8.88" width="60" height="4.44" fill="#0038A8"/><rect y="17.78" width="60" height="4.44" fill="#0038A8"/><rect y="26.67" width="60" height="4.44" fill="#0038A8"/><rect y="35.55" width="60" height="4.44" fill="#0038A8"/><rect width="24" height="22.22" fill="#fff"/><circle cx="12" cy="11.11" r="4" fill="#FCD116"/>`},
+  "py":{n:"Paraguay",svg:tri("h","#D52B1E","#fff","#0038A8")},
+  "cl":{n:"Chili",svg:`<rect width="60" height="40" fill="#fff"/><rect y="20" width="60" height="20" fill="#D52B1E"/><rect width="20" height="20" fill="#0039A6"/>${star(10,10,4,"#fff")}`},
+  "co":{n:"Colombie",svg:`<rect width="60" height="20" fill="#FCD116"/><rect y="20" width="60" height="10" fill="#003893"/><rect y="30" width="60" height="10" fill="#CE1126"/>`},
+  "pe":{n:"Pérou",svg:tri("v","#D91023","#fff","#D91023")},
+  "ec":{n:"Équateur",svg:`<rect width="60" height="20" fill="#FFD100"/><rect y="20" width="60" height="10" fill="#0072CE"/><rect y="30" width="60" height="10" fill="#EF3340"/>`},
+  "ve":{n:"Venezuela",svg:`<rect width="60" height="13.33" fill="#FCD116"/><rect y="13.33" width="60" height="13.34" fill="#00247D"/><rect y="26.67" width="60" height="13.33" fill="#CF142B"/>`},
+  "bo":{n:"Bolivie",svg:tri("h","#D52B1E","#F9E300","#007934")},
+  "mx":{n:"Mexique",svg:`<rect width="20" height="40" fill="#006847"/><rect x="20" width="20" height="40" fill="#fff"/><rect x="40" width="20" height="40" fill="#CE1126"/><circle cx="30" cy="20" r="3.5" fill="#9D7028" stroke="#444" stroke-width=".3"/>`},
+  "us":{n:"États-Unis",svg:`<rect width="60" height="40" fill="#B22234"/><rect y="3.08" width="60" height="3.08" fill="#fff"/><rect y="9.23" width="60" height="3.08" fill="#fff"/><rect y="15.38" width="60" height="3.08" fill="#fff"/><rect y="21.54" width="60" height="3.08" fill="#fff"/><rect y="27.69" width="60" height="3.08" fill="#fff"/><rect y="33.85" width="60" height="3.08" fill="#fff"/><rect width="24" height="21.54" fill="#3C3B6E"/>${star(6,5,1.4,"#fff")}${star(12,5,1.4,"#fff")}${star(18,5,1.4,"#fff")}${star(6,10,1.4,"#fff")}${star(12,10,1.4,"#fff")}${star(18,10,1.4,"#fff")}${star(6,15,1.4,"#fff")}${star(12,15,1.4,"#fff")}${star(18,15,1.4,"#fff")}`},
+  "ca":{n:"Canada",svg:`<rect width="60" height="40" fill="#D52B1E"/><rect x="15" width="30" height="40" fill="#fff"/><path d="M30,9 L31,14 L34.5,12.5 L33,17 L37.5,16.5 L34.5,20 L37.5,22.5 L33,22.5 L33.5,27 L30,24 L26.5,27 L27,22.5 L22.5,22.5 L25.5,20 L22.5,16.5 L27,17 L25.5,12.5 L29,14 Z" fill="#D52B1E"/>`},
+  "jm":{n:"Jamaïque",svg:`<rect width="60" height="40" fill="#FED100"/><polygon points="0,0 60,40 60,0" fill="#000"/><polygon points="0,0 60,40 0,40" fill="#000"/><polygon points="0,0 30,20 0,40" fill="#009A49"/><polygon points="60,0 30,20 60,40" fill="#009A49"/>`},
+  "cr":{n:"Costa Rica",svg:`<rect width="60" height="40" fill="#fff"/><rect width="60" height="8" fill="#002B7F"/><rect y="32" width="60" height="8" fill="#002B7F"/><rect y="14" width="60" height="12" fill="#CE1126"/>`},
+
+  // AFRIQUE
+  "ma":{n:"Maroc",svg:`<rect width="60" height="40" fill="#C1272D"/><polygon points="30,11 32.5,18 39.5,18 33.5,22.5 36,29 30,25 24,29 26.5,22.5 20.5,18 27.5,18" fill="none" stroke="#006233" stroke-width="1.5"/>`},
+  "dz":{n:"Algérie",svg:`<rect width="60" height="40" fill="#fff"/><rect width="30" height="40" fill="#006233"/><circle cx="30" cy="20" r="6" fill="#D21034"/><circle cx="32" cy="20" r="5" fill="#fff"/>${star(36,20,2.5,"#D21034")}`},
+  "tn":{n:"Tunisie",svg:`<rect width="60" height="40" fill="#E70013"/><circle cx="30" cy="20" r="9" fill="#fff"/><circle cx="30" cy="20" r="5.5" fill="#E70013"/><circle cx="32" cy="20" r="4.5" fill="#fff"/>${star(33,20,2,"#E70013")}`},
+  "eg":{n:"Égypte",svg:`<rect width="60" height="13.34" fill="#CE1126"/><rect y="13.33" width="60" height="13.34" fill="#fff"/><rect y="26.67" width="60" height="13.33" fill="#000"/><circle cx="30" cy="20" r="3.5" fill="#C09300"/>`},
+  "sn":{n:"Sénégal",svg:`<rect width="20" height="40" fill="#00853F"/><rect x="20" width="20" height="40" fill="#FDEF42"/><rect x="40" width="20" height="40" fill="#E31B23"/>${star(30,20,3.5,"#00853F")}`},
+  "ci":{n:"Côte d'Ivoire",svg:tri("v","#FF8200","#fff","#009E60")},
+  "ml":{n:"Mali",svg:tri("v","#14B53A","#FCD116","#CE1126")},
+  "gn":{n:"Guinée",svg:tri("v","#CE1126","#FCD116","#009460")},
+  "bf":{n:"Burkina Faso",svg:`<rect width="60" height="20" fill="#EF2B2D"/><rect y="20" width="60" height="20" fill="#009E49"/>${star(30,20,3.5,"#FCD116")}`},
+  "gh":{n:"Ghana",svg:`<rect width="60" height="13.34" fill="#CE1126"/><rect y="13.33" width="60" height="13.34" fill="#FCD116"/><rect y="26.67" width="60" height="13.33" fill="#006B3F"/>${star(30,20,3,"#000")}`},
+  "ng":{n:"Nigéria",svg:tri("v","#008751","#fff","#008751")},
+  "cm":{n:"Cameroun",svg:`<rect width="20" height="40" fill="#007A5E"/><rect x="20" width="20" height="40" fill="#CE1126"/><rect x="40" width="20" height="40" fill="#FCD116"/>${star(30,20,3.5,"#FCD116")}`},
+  "cd":{n:"RD Congo",svg:`<rect width="60" height="40" fill="#007FFF"/><polygon points="0,40 50,5 60,5 60,15 10,40" fill="#F7D618"/><polygon points="0,40 50,5 60,5 60,8 6,40" fill="#CE1021"/>${star(8,8,3.5,"#F7D618")}`},
+  "cg":{n:"Congo",svg:`<rect width="60" height="40" fill="#FBDE4A"/><polygon points="0,0 60,0 0,40" fill="#009543"/><polygon points="60,0 60,40 0,40" fill="#DC241F"/>`},
+  "ga":{n:"Gabon",svg:tri("h","#009E60","#FCD116","#3A75C4")},
+  "ao":{n:"Angola",svg:`<rect width="60" height="20" fill="#CC092F"/><rect y="20" width="60" height="20" fill="#000"/><circle cx="22" cy="20" r="5" fill="none" stroke="#FFCB00" stroke-width="1.2"/>${star(22,20,2,"#FFCB00")}`},
+  "za":{n:"Afrique du Sud",svg:`<rect width="60" height="40" fill="#001489"/><rect width="60" height="13.33" fill="#E03C31"/><rect y="26.67" width="60" height="13.33" fill="#001489"/><path d="M0,0 L25,20 L0,40 Z" fill="#000"/><path d="M0,4 L21,20 L0,36 Z" fill="#FFB81C"/><path d="M0,8 L17,20 L0,32 Z" fill="#007A4D"/><path d="M0,12 L13,20 L0,28 L60,28 L60,12 Z" fill="#fff"/><path d="M0,14 L11,20 L0,26 L60,26 L60,14 Z" fill="#007A4D"/>`},
+
+  // ASIE / OCEANIE
+  "jp":{n:"Japon",svg:`<rect width="60" height="40" fill="#fff"/><circle cx="30" cy="20" r="12" fill="#BC002D"/>`},
+  "kr":{n:"Corée du Sud",svg:`<rect width="60" height="40" fill="#fff"/><circle cx="30" cy="20" r="10" fill="#CD2E3A"/><path d="M30,10 A 5 5 0 0 1 30,20 A 5 5 0 0 0 30,30 A 10 10 0 0 0 30,10" fill="#0047A0"/>`},
+  "cn":{n:"Chine",svg:`<rect width="60" height="40" fill="#DE2910"/>${star(10,10,4,"#FFDE00")}${star(20,4,1.3,"#FFDE00")}${star(24,8,1.3,"#FFDE00")}${star(24,13,1.3,"#FFDE00")}${star(20,17,1.3,"#FFDE00")}`},
+  "sa":{n:"Arabie saoudite",svg:`<rect width="60" height="40" fill="#006C35"/><text x="30" y="20" text-anchor="middle" font-size="7" fill="#fff" font-weight="700">شهادة</text><rect x="14" y="26" width="32" height="1.5" fill="#fff"/>`},
+  "qa":{n:"Qatar",svg:`<rect width="60" height="40" fill="#fff"/><path d="M22,0 L60,0 L60,40 L22,40 L25,37.2 L22,34.4 L25,31.6 L22,28.8 L25,26 L22,23.2 L25,20.4 L22,17.6 L25,14.8 L22,12 L25,9.2 L22,6.4 L25,3.6 L22,.8 Z" fill="#8A1538"/>`},
+  "ae":{n:"Émirats arabes unis",svg:`<rect width="60" height="40" fill="#fff"/><rect width="60" height="13.34" fill="#00732F"/><rect y="26.67" width="60" height="13.33" fill="#000"/><rect width="14" height="40" fill="#FF0000"/>`},
+  "ir":{n:"Iran",svg:tri("h","#239F40","#fff","#DA0000")},
+  "iq":{n:"Irak",svg:`${tri("h","#CE1126","#fff","#000")}<text x="30" y="22.5" text-anchor="middle" font-size="6" fill="#009E49" font-weight="700">الله أكبر</text>`},
+  "il":{n:"Israël",svg:`<rect width="60" height="40" fill="#fff"/><rect y="4" width="60" height="3" fill="#0038B8"/><rect y="33" width="60" height="3" fill="#0038B8"/><polygon points="30,11 34,23 22,16 38,16 26,23" fill="none" stroke="#0038B8" stroke-width="1.2"/><polygon points="30,29 34,17 22,24 38,24 26,17" fill="none" stroke="#0038B8" stroke-width="1.2"/>`},
+  "au":{n:"Australie",svg:`<rect width="60" height="40" fill="#012169"/><rect width="30" height="20" fill="#012169"/><path d="M0,0 L30,20 M30,0 L0,20" stroke="#fff" stroke-width="3"/><path d="M0,0 L30,20 M30,0 L0,20" stroke="#C8102E" stroke-width="1.4"/><rect x="13" width="4" height="20" fill="#fff"/><rect y="8" width="30" height="4" fill="#fff"/><rect x="14" width="2" height="20" fill="#C8102E"/><rect y="9" width="30" height="2" fill="#C8102E"/>${star(15,32,3,"#fff")}${star(40,12,1.6,"#fff")}${star(48,18,1.6,"#fff")}${star(45,28,1.6,"#fff")}${star(52,32,1.4,"#fff")}${star(40,35,1.2,"#fff")}`},
+  "nz":{n:"Nouvelle-Zélande",svg:`<rect width="60" height="40" fill="#012169"/><rect width="30" height="20" fill="#012169"/><path d="M0,0 L30,20 M30,0 L0,20" stroke="#fff" stroke-width="3"/><path d="M0,0 L30,20 M30,0 L0,20" stroke="#C8102E" stroke-width="1.4"/><rect x="13" width="4" height="20" fill="#fff"/><rect y="8" width="30" height="4" fill="#fff"/><rect x="14" width="2" height="20" fill="#C8102E"/><rect y="9" width="30" height="2" fill="#C8102E"/>${star(48,12,1.8,"#C8102E")}${star(50,28,1.8,"#C8102E")}${star(42,30,1.8,"#C8102E")}${star(40,18,1.8,"#C8102E")}`},
+};
+
+// Build a sorted list for the picker
+const NATIONS = Object.entries(FLAGS).map(([c,d])=>({c,n:d.n})).sort((a,b)=>a.n.localeCompare(b.n,"fr"));
+
+function flagSVG(code, opts={}){
+  const f = FLAGS[code];
+  if(!f) return null;
+  return `<svg class="flag-svg" viewBox="0 0 60 40" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">${f.svg}</svg>`;
+}
+
+/* =========================================================================
+   CLUB LIBRARY — identique à QuizFootGen (113 clubs, Wikipedia logos + fallback SVG)
+   Each entry: { slug, name, league, abbr, colors:[c1,c2], logo? }
+   ========================================================================= */
+const CLUB_LIBRARY = [
+  {slug:'arsenal', name:"Arsenal", league:"Premier League", abbr:'ARS', colors:['#EF0107','#FFFFFF'], logo:'https://upload.wikimedia.org/wikipedia/en/5/53/Arsenal_FC.svg'},
+  {slug:'aston-villa', name:"Aston Villa", league:"Premier League", abbr:'AVL', colors:['#670E36','#95BFE5'], logo:'https://upload.wikimedia.org/wikipedia/en/9/9f/Aston_Villa_FC_new_crest.svg'},
+  {slug:'bournemouth', name:"Bournemouth", league:"Premier League", abbr:'BOU', colors:['#DA291C','#000000']},
+  {slug:'brentford', name:"Brentford", league:"Premier League", abbr:'BRE', colors:['#E30613','#FFFFFF']},
+  {slug:'brighton', name:"Brighton", league:"Premier League", abbr:'BHA', colors:['#0057B8','#FFCD00']},
+  {slug:'chelsea', name:"Chelsea", league:"Premier League", abbr:'CHE', colors:['#034694','#FFFFFF'], logo:'https://upload.wikimedia.org/wikipedia/en/c/cc/Chelsea_FC.svg'},
+  {slug:'crystal-palace', name:"Crystal Palace", league:"Premier League", abbr:'CRY', colors:['#1B458F','#C4122E']},
+  {slug:'everton', name:"Everton", league:"Premier League", abbr:'EVE', colors:['#003399','#FFFFFF']},
+  {slug:'fulham', name:"Fulham", league:"Premier League", abbr:'FUL', colors:['#FFFFFF','#000000']},
+  {slug:'le-havre', name:"Le Havre", league:"Ligue 1", abbr:'HAC', colors:['#87CEEB','#1e3a5f']},
+  {slug:'leicester', name:"Leicester", league:"Premier League", abbr:'LCFC', colors:['#003090','#FDBE11'], logo:'https://upload.wikimedia.org/wikipedia/en/2/2d/Leicester_City_crest.svg'},
+  {slug:'liverpool', name:"Liverpool", league:"Premier League", abbr:'LFC', colors:['#C8102E','#00B2A9'], logo:'https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg'},
+  {slug:'manchester-city', name:"Manchester City", league:"Premier League", abbr:'MCFC', colors:['#6CABDD','#1c2c5b'], logo:'https://upload.wikimedia.org/wikipedia/en/e/eb/Manchester_City_FC_badge.svg'},
+  {slug:'manchester-united', name:"Manchester United", league:"Premier League", abbr:'MUFC', colors:['#DA291C','#FBE122'], logo:'https://upload.wikimedia.org/wikipedia/en/7/7a/Manchester_United_FC_crest.svg'},
+  {slug:'newcastle', name:"Newcastle", league:"Premier League", abbr:'NEW', colors:['#241F20','#FFFFFF']},
+  {slug:'nottingham-forest', name:"Nottingham Forest", league:"Premier League", abbr:'NFO', colors:['#DD0000','#FFFFFF']},
+  {slug:'tottenham', name:"Tottenham", league:"Premier League", abbr:'TOT', colors:['#132257','#FFFFFF'], logo:'https://upload.wikimedia.org/wikipedia/en/b/b4/Tottenham_Hotspur.svg'},
+  {slug:'west-ham', name:"West Ham", league:"Premier League", abbr:'WHU', colors:['#7A263A','#1BB1E7']},
+  {slug:'wolves', name:"Wolves", league:"Premier League", abbr:'WOL', colors:['#FDB913','#231F20']},
+  {slug:'ipswich', name:"Ipswich", league:"Premier League", abbr:'IPS', colors:['#3E83CF','#FFFFFF']},
+  {slug:'southampton', name:"Southampton", league:"Premier League", abbr:'SOU', colors:['#D71920','#FFFFFF']},
+  {slug:'psg', name:"PSG", league:"Ligue 1", abbr:'PSG', colors:['#004170','#DA291C'], logo:'https://upload.wikimedia.org/wikipedia/en/a/a7/Paris_Saint-Germain_F.C..svg'},
+  {slug:'marseille', name:"Marseille", league:"Ligue 1", abbr:'OM', colors:['#2FAEE0','#FFFFFF']},
+  {slug:'monaco', name:"Monaco", league:"Ligue 1", abbr:'ASM', colors:['#CE1126','#FFFFFF']},
+  {slug:'lyon', name:"Lyon", league:"Ligue 1", abbr:'OL', colors:['#003a70','#d4111e']},
+  {slug:'lille', name:"Lille", league:"Ligue 1", abbr:'LOSC', colors:['#E01E13','#003366']},
+  {slug:'nice', name:"Nice", league:"Ligue 1", abbr:'OGCN', colors:['#E10E1C','#000000']},
+  {slug:'lens', name:"Lens", league:"Ligue 1", abbr:'RCL', colors:['#FCD116','#ED1C24']},
+  {slug:'strasbourg', name:"Strasbourg", league:"Ligue 1", abbr:'RCSA', colors:['#0066B3','#FFFFFF']},
+  {slug:'rennes', name:"Rennes", league:"Ligue 1", abbr:'SRFC', colors:['#E10E1C','#000000']},
+  {slug:'toulouse', name:"Toulouse", league:"Ligue 1", abbr:'TFC', colors:['#5B2F82','#FFFFFF']},
+  {slug:'nantes', name:"Nantes", league:"Ligue 1", abbr:'FCN', colors:['#FCD307','#247F4B']},
+  {slug:'brest', name:"Brest", league:"Ligue 1", abbr:'SB29', colors:['#E10D17','#FFFFFF']},
+  {slug:'reims', name:"Reims", league:"Ligue 1", abbr:'SDR', colors:['#E10E1C','#FFFFFF']},
+  {slug:'auxerre', name:"Auxerre", league:"Ligue 1", abbr:'AJA', colors:['#FFFFFF','#0F2C5A']},
+  {slug:'angers', name:"Angers", league:"Ligue 1", abbr:'SCO', colors:['#000000','#FFFFFF']},
+  {slug:'saint-etienne', name:"Saint-Étienne", league:"Ligue 1", abbr:'ASSE', colors:['#008B3A','#FFFFFF']},
+  {slug:'montpellier', name:"Montpellier", league:"Ligue 1", abbr:'MHSC', colors:['#F36F21','#003876']},
+  {slug:'bordeaux', name:"Bordeaux", league:"Ligue 1", abbr:'FCGB', colors:['#0E224A','#FFFFFF']},
+  {slug:'real-madrid', name:"Real Madrid", league:"La Liga", abbr:'RM', colors:['#FFFFFF','#FEBE10'], logo:'https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg'},
+  {slug:'barcelone', name:"Barcelone", league:"La Liga", abbr:'FCB', colors:['#A50044','#004D98'], logo:'https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg'},
+  {slug:'atletico-madrid', name:"Atlético Madrid", league:"La Liga", abbr:'ATM', colors:['#CB3524','#FFFFFF'], logo:'https://upload.wikimedia.org/wikipedia/en/f/f4/Atletico_Madrid_2017_logo.svg'},
+  {slug:'athletic-bilbao', name:"Athletic Bilbao", league:"La Liga", abbr:'ATH', colors:['#EE2523','#FFFFFF']},
+  {slug:'real-sociedad', name:"Real Sociedad", league:"La Liga", abbr:'RSO', colors:['#143C8D','#FFFFFF']},
+  {slug:'villarreal', name:"Villarreal", league:"La Liga", abbr:'VIL', colors:['#FFE667','#005187']},
+  {slug:'real-betis', name:"Real Betis", league:"La Liga", abbr:'BET', colors:['#0BB363','#FFFFFF']},
+  {slug:'seville', name:"Séville", league:"La Liga", abbr:'SEV', colors:['#D00027','#FFFFFF']},
+  {slug:'valence', name:"Valence", league:"La Liga", abbr:'VCF', colors:['#FFFFFF','#F18E00']},
+  {slug:'celta-vigo', name:"Celta Vigo", league:"La Liga", abbr:'CEL', colors:['#8AB8E8','#FFFFFF']},
+  {slug:'espanyol', name:"Espanyol", league:"La Liga", abbr:'ESP', colors:['#005DAA','#FFFFFF']},
+  {slug:'mallorca', name:"Mallorca", league:"La Liga", abbr:'MLL', colors:['#E20613','#FFCC00']},
+  {slug:'girona', name:"Girona", league:"La Liga", abbr:'GIR', colors:['#CB0E0F','#FFFFFF']},
+  {slug:'getafe', name:"Getafe", league:"La Liga", abbr:'GET', colors:['#005CA8','#FFFFFF']},
+  {slug:'osasuna', name:"Osasuna", league:"La Liga", abbr:'OSA', colors:['#D91A21','#0A346F']},
+  {slug:'rayo-vallecano', name:"Rayo Vallecano", league:"La Liga", abbr:'RAY', colors:['#FFFFFF','#E53027']},
+  {slug:'alaves', name:"Alavés", league:"La Liga", abbr:'ALA', colors:['#0B65C1','#FFFFFF']},
+  {slug:'inter-milan', name:"Inter Milan", league:"Serie A", abbr:'INT', colors:['#010E80','#000000'], logo:'https://upload.wikimedia.org/wikipedia/commons/0/05/FC_Internazionale_Milano_2021.svg'},
+  {slug:'ac-milan', name:"AC Milan", league:"Serie A", abbr:'ACM', colors:['#FB090B','#000000'], logo:'https://upload.wikimedia.org/wikipedia/commons/d/d0/Logo_of_AC_Milan.svg'},
+  {slug:'juventus', name:"Juventus", league:"Serie A", abbr:'JUV', colors:['#000000','#FFFFFF'], logo:'https://upload.wikimedia.org/wikipedia/commons/b/bc/Juventus_FC_2017_logo.svg'},
+  {slug:'naples', name:"Naples", league:"Serie A", abbr:'SSC', colors:['#12A0D7','#003C82']},
+  {slug:'atalanta', name:"Atalanta", league:"Serie A", abbr:'ATA', colors:['#1C1F2A','#005EB8']},
+  {slug:'roma', name:"Roma", league:"Serie A", abbr:'ROM', colors:['#8E1F2F','#F0BC42']},
+  {slug:'lazio', name:"Lazio", league:"Serie A", abbr:'LAZ', colors:['#87D8F7','#FFFFFF']},
+  {slug:'bologna', name:"Bologna", league:"Serie A", abbr:'BOL', colors:['#1A2855','#A91E2C']},
+  {slug:'fiorentina', name:"Fiorentina", league:"Serie A", abbr:'FIO', colors:['#5D2E8F','#FFFFFF']},
+  {slug:'torino', name:"Torino", league:"Serie A", abbr:'TOR', colors:['#8B0000','#FFFFFF']},
+  {slug:'udinese', name:"Udinese", league:"Serie A", abbr:'UDI', colors:['#000000','#FFFFFF']},
+  {slug:'genoa', name:"Genoa", league:"Serie A", abbr:'GEN', colors:['#C8102E','#1B3A6B']},
+  {slug:'como', name:"Como", league:"Serie A", abbr:'COM', colors:['#003478','#FFFFFF']},
+  {slug:'lecce', name:"Lecce", league:"Serie A", abbr:'LEC', colors:['#FCDD09','#E2231A']},
+  {slug:'verona', name:"Verona", league:"Serie A", abbr:'VER', colors:['#0066B3','#FCD116']},
+  {slug:'cagliari', name:"Cagliari", league:"Serie A", abbr:'CAG', colors:['#B11212','#1F2A66']},
+  {slug:'bayern-munich', name:"Bayern Munich", league:"Bundesliga", abbr:'FCB', colors:['#DC052D','#0066B2'], logo:'https://upload.wikimedia.org/wikipedia/commons/1/1b/FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg'},
+  {slug:'borussia-dortmund', name:"Borussia Dortmund", league:"Bundesliga", abbr:'BVB', colors:['#FDE100','#000000'], logo:'https://upload.wikimedia.org/wikipedia/commons/6/67/Borussia_Dortmund_logo.svg'},
+  {slug:'bayer-leverkusen', name:"Bayer Leverkusen", league:"Bundesliga", abbr:'B04', colors:['#E32221','#000000']},
+  {slug:'rb-leipzig', name:"RB Leipzig", league:"Bundesliga", abbr:'RBL', colors:['#DD0741','#001F5B']},
+  {slug:'eintracht-frankfurt', name:"Eintracht Frankfurt", league:"Bundesliga", abbr:'SGE', colors:['#000000','#E10000']},
+  {slug:'vfb-stuttgart', name:"VfB Stuttgart", league:"Bundesliga", abbr:'VFB', colors:['#E32D22','#FFFFFF']},
+  {slug:'wolfsburg', name:"Wolfsburg", league:"Bundesliga", abbr:'WOB', colors:['#65B32E','#FFFFFF']},
+  {slug:'mainz', name:"Mainz", league:"Bundesliga", abbr:'M05', colors:['#C8102E','#FFFFFF']},
+  {slug:'fribourg', name:"Fribourg", league:"Bundesliga", abbr:'SCF', colors:['#5B2D8B','#E61E1E']},
+  {slug:'werder-bremen', name:"Werder Bremen", league:"Bundesliga", abbr:'SVW', colors:['#1D9053','#FFFFFF']},
+  {slug:'hoffenheim', name:"Hoffenheim", league:"Bundesliga", abbr:'TSG', colors:['#1961AC','#FFFFFF']},
+  {slug:'monchengladbach', name:"Mönchengladbach", league:"Bundesliga", abbr:'BMG', colors:['#000000','#00A653']},
+  {slug:'union-berlin', name:"Union Berlin", league:"Bundesliga", abbr:'FCU', colors:['#EB1923','#FCDB05']},
+  {slug:'augsbourg', name:"Augsbourg", league:"Bundesliga", abbr:'FCA', colors:['#BB0033','#FFFFFF']},
+  {slug:'schalke-04', name:"Schalke 04", league:"Bundesliga", abbr:'S04', colors:['#004D9D','#FFFFFF']},
+  {slug:'hambourg', name:"Hambourg", league:"Bundesliga", abbr:'HSV', colors:['#0F569C','#000000']},
+  {slug:'porto', name:"Porto", league:"Autres", abbr:'FCP', colors:['#00428C','#FFFFFF']},
+  {slug:'benfica', name:"Benfica", league:"Autres", abbr:'SLB', colors:['#E60026','#FFFFFF']},
+  {slug:'sporting-cp', name:"Sporting CP", league:"Autres", abbr:'SCP', colors:['#008057','#FFFFFF']},
+  {slug:'braga', name:"Braga", league:"Autres", abbr:'SCB', colors:['#C8102E','#FFFFFF']},
+  {slug:'ajax', name:"Ajax", league:"Autres", abbr:'AJX', colors:['#D2122E','#FFFFFF']},
+  {slug:'psv-eindhoven', name:"PSV Eindhoven", league:"Autres", abbr:'PSV', colors:['#ED1C24','#FFFFFF']},
+  {slug:'feyenoord', name:"Feyenoord", league:"Autres", abbr:'FEY', colors:['#CC0000','#FFFFFF']},
+  {slug:'anderlecht', name:"Anderlecht", league:"Autres", abbr:'AND', colors:['#5C0F8B','#FFFFFF']},
+  {slug:'bruges', name:"Bruges", league:"Autres", abbr:'CLB', colors:['#005FB3','#000000']},
+  {slug:'celtic', name:"Celtic", league:"Autres", abbr:'CEL', colors:['#008752','#FFFFFF']},
+  {slug:'rangers', name:"Rangers", league:"Autres", abbr:'RAN', colors:['#0067B3','#FFFFFF']},
+  {slug:'galatasaray', name:"Galatasaray", league:"Autres", abbr:'GS', colors:['#FFB000','#A90432']},
+  {slug:'fenerbahce', name:"Fenerbahçe", league:"Autres", abbr:'FB', colors:['#001E5C','#FFCC00']},
+  {slug:'al-nassr', name:"Al-Nassr", league:"Autres", abbr:'NSR', colors:['#FFCB05','#0A2240']},
+  {slug:'al-hilal', name:"Al-Hilal", league:"Autres", abbr:'HIL', colors:['#005DA9','#FFFFFF']},
+  {slug:'al-ittihad', name:"Al-Ittihad", league:"Autres", abbr:'ITT', colors:['#000000','#FECF1F']},
+  {slug:'al-ahli', name:"Al-Ahli", league:"Autres", abbr:'AHL', colors:['#009C49','#FFFFFF']},
+  {slug:'inter-miami', name:"Inter Miami", league:"Autres", abbr:'MIA', colors:['#F7B5CD','#231F20']},
+  {slug:'la-galaxy', name:"LA Galaxy", league:"Autres", abbr:'LAG', colors:['#00245D','#FECB00']},
+  {slug:'flamengo', name:"Flamengo", league:"Autres", abbr:'FLA', colors:['#E2231A','#000000']},
+  {slug:'palmeiras', name:"Palmeiras", league:"Autres", abbr:'PAL', colors:['#006437','#FFFFFF']},
+  {slug:'santos', name:"Santos", league:"Autres", abbr:'SAN', colors:['#FFFFFF','#000000']},
+  {slug:'boca-juniors', name:"Boca Juniors", league:"Autres", abbr:'BOC', colors:['#001F5F','#FECB00']},
+  {slug:'river-plate', name:"River Plate", league:"Autres", abbr:'RIV', colors:['#FFFFFF','#CE0E2D']}
+];
+
+// Indexer par slug pour O(1) lookup
+const CLUBS = {};
+CLUB_LIBRARY.forEach(c => { CLUBS[c.slug] = c; });
+
+// Liste triée pour le picker
+const CLUBS_LIST = CLUB_LIBRARY.map(c => ({c: c.slug, n: c.name, league: c.league})).sort((a,b)=>a.n.localeCompare(b.n,"fr"));
+
+// Fallback SVG en dataURL (utilisé si l'image Wikipedia ne charge pas)
+function clubFallbackDataURL(club){
+  const [c1,c2] = club.colors;
+  const safeAbbr = String(club.abbr || '').replace(/[<>&]/g,'');
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></linearGradient></defs><circle cx="50" cy="50" r="48" fill="url(%23g)"/><text x="50" y="62" font-family="Impact,Anton,sans-serif" font-size="28" font-weight="900" text-anchor="middle" fill="white" stroke="black" stroke-width="1.2">${safeAbbr}</text></svg>`;
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
+
+// Rendu d'un club: <img> avec URL Wikipedia (ou direct fallback si pas de logo URL)
+// onerror déclenche le fallback automatique si l'URL Wikipedia est bloquée/inaccessible
+function clubBadge(slug){
+  const club = CLUBS[slug];
+  if(!club) return '';
+  const fallback = clubFallbackDataURL(club);
+  const src = club.logo || fallback;
+  const onErr = club.logo ? ` onerror="this.onerror=null;this.src='${fallback}'"` : '';
+  return `<img class="club-img" src="${src}" alt="${club.name.replace(/"/g,'')}"${onErr} loading="lazy">`;
+}
+
+// Dispatcher mode → flag (SVG inline) ou club (<img>)
+function symbolSVG(mode, code){
+  return mode === "nation" ? clubBadge(code) : flagSVG(code);
+}
+
+/* =========================================================================
+   STATE
+   ========================================================================= */
+const FORMATIONS = {
+  "4-3-3":[{x:50,y:9},{x:15,y:26},{x:38,y:28},{x:62,y:28},{x:85,y:26},{x:25,y:55},{x:50,y:58},{x:75,y:55},{x:20,y:84},{x:50,y:90},{x:80,y:84}],
+  "4-4-2":[{x:50,y:9},{x:15,y:26},{x:38,y:28},{x:62,y:28},{x:85,y:26},{x:15,y:55},{x:38,y:55},{x:62,y:55},{x:85,y:55},{x:35,y:88},{x:65,y:88}],
+  "4-2-3-1":[{x:50,y:9},{x:15,y:26},{x:38,y:28},{x:62,y:28},{x:85,y:26},{x:35,y:48},{x:65,y:48},{x:20,y:70},{x:50,y:72},{x:80,y:70},{x:50,y:92}],
+  "3-5-2":[{x:50,y:9},{x:25,y:27},{x:50,y:29},{x:75,y:27},{x:10,y:55},{x:32,y:56},{x:50,y:58},{x:68,y:56},{x:90,y:55},{x:35,y:88},{x:65,y:88}],
+  "3-4-3":[{x:50,y:9},{x:25,y:28},{x:50,y:30},{x:75,y:28},{x:15,y:56},{x:38,y:55},{x:62,y:55},{x:85,y:56},{x:22,y:86},{x:50,y:90},{x:78,y:86}],
+  "4-3-1-2":[{x:50,y:9},{x:15,y:26},{x:38,y:28},{x:62,y:28},{x:85,y:26},{x:22,y:50},{x:50,y:48},{x:78,y:50},{x:50,y:70},{x:35,y:88},{x:65,y:88}],
+  "5-3-2":[{x:50,y:9},{x:10,y:30},{x:30,y:28},{x:50,y:30},{x:70,y:28},{x:90,y:30},{x:30,y:55},{x:50,y:58},{x:70,y:55},{x:35,y:88},{x:65,y:88}],
+};
+
+const STORE_KEY = "trouve-equipe-v2";
+const state = {
+  cards: [],
+  draft: null,
+  settings: { watermark: "@unisparlefoot", quizTitle: "TROUVE L'EQUIPE", maxCards:6, dQuestion:10, dReveal:3, stageTheme:"red" },
+  quizIndex: 0,
+  quizRevealed: {},
+  autoPlay: { running:false, phase:"idle", idx:0, timeLeft:0, tickId:null },
+};
+const TIMINGS = { intro:3, recap:8, outro:5 };
+function uid(){ return "c-"+Math.random().toString(36).slice(2,9); }
+function load(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return;
+    const d = JSON.parse(raw);
+    state.cards = Array.isArray(d.cards) ? d.cards.map(migrateCard) : [];
+    state.settings = Object.assign(state.settings, d.settings || {});
+  }catch(e){}
+}
+function save(){
+  localStorage.setItem(STORE_KEY, JSON.stringify({cards:state.cards, settings:state.settings, v:2}));
+  // Déclenche aussi sync cloud (debouncée)
+  if(cloud.ready && cloud.code) scheduleCloudSync();
+}
+
+/* =========================================================================
+   CLOUD SYNC — Option A : backend dédié à Trouve l'Équipe, code partagé avec QFG
+   ========================================================================= */
+const cloud = {
+  code: null,
+  ready: false,
+  syncTimer: null,
+  SYNC_DEBOUNCE_MS: 1500,
+  ACCESS_STORE_KEY: "trouve-equipe-access-code",
+};
+
+function setSyncStatus(status, text){
+  const el = els.syncIndicator;
+  if(!el) return;
+  el.classList.remove("ok","syncing","error","offline");
+  el.classList.add(status);
+  els.syncText.textContent = text;
+}
+
+function scheduleCloudSync(){
+  if(cloud.syncTimer) clearTimeout(cloud.syncTimer);
+  setSyncStatus("syncing", "Sync…");
+  cloud.syncTimer = setTimeout(()=>syncToCloud(), cloud.SYNC_DEBOUNCE_MS);
+}
+
+async function syncToCloud(){
+  if(!cloud.code) return;
+  setSyncStatus("syncing", "Envoi…");
+  try{
+    const res = await fetch("/api/save-state", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ code: cloud.code, state: {cards: state.cards, settings: state.settings} })
+    });
+    if(!res.ok){
+      if(res.status === 401){
+        setSyncStatus("error", "Code invalide");
+        cloud.code = null; cloud.ready = false;
+        localStorage.removeItem(cloud.ACCESS_STORE_KEY);
+        alert("Le code d'accès n'est plus valide. Tu vas être déconnecté.");
+        showLogin();
+        return;
+      }
+      throw new Error("HTTP "+res.status);
+    }
+    setSyncStatus("ok", "Synchronisé");
+  } catch(err){
+    console.warn("Sync cloud échouée:", err);
+    setSyncStatus("error", "Hors ligne");
+  }
+}
+
+async function tryLogin(code){
+  els.loginBtn.disabled = true;
+  els.loginBtn.textContent = "CONNEXION…";
+  els.loginError.textContent = "";
+  els.loginInput.classList.remove("error");
+  try{
+    const res = await fetch("/api/load-state", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ code })
+    });
+    if(res.status === 401){
+      els.loginInput.classList.add("error");
+      els.loginError.textContent = "❌ Code incorrect";
+      els.loginBtn.disabled = false;
+      els.loginBtn.textContent = "SE CONNECTER";
+      return;
+    }
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    // Code accepté !
+    cloud.code = code;
+    cloud.ready = true;
+    localStorage.setItem(cloud.ACCESS_STORE_KEY, code);
+    const data = await res.json();
+    if(data.state && Array.isArray(data.state.cards)){
+      state.cards = data.state.cards.map(migrateCard);
+      if(data.state.settings) state.settings = Object.assign(state.settings, data.state.settings);
+      localStorage.setItem(STORE_KEY, JSON.stringify({cards:state.cards, settings:state.settings, v:2}));
+      // Réinitialiser le draft pour qu'il soit propre
+      state.draft = makeDraft();
+      renderEditor();
+      renderList();
+    }
+    setSyncStatus("ok", "Synchronisé");
+    els.btnLogout.style.display = "";
+    hideLogin();
+    toast(`Connecté avec le code ${code}`);
+  } catch(err){
+    els.loginError.textContent = "⚠️ Impossible de joindre le serveur";
+    els.loginBtn.disabled = false;
+    els.loginBtn.textContent = "SE CONNECTER";
+  }
+}
+
+function logout(){
+  if(!confirm("Te déconnecter ? Tes données restent dans le cloud, tu pourras les retrouver en te reconnectant.")) return;
+  cloud.code = null;
+  cloud.ready = false;
+  localStorage.removeItem(cloud.ACCESS_STORE_KEY);
+  setSyncStatus("offline", "Hors ligne");
+  els.btnLogout.style.display = "none";
+  showLogin();
+}
+
+function showLogin(){
+  els.loginInput.value = "";
+  els.loginError.textContent = "";
+  els.loginInput.classList.remove("error");
+  els.loginBtn.disabled = false;
+  els.loginBtn.textContent = "SE CONNECTER";
+  els.loginModal.classList.add("open");
+  setTimeout(()=>els.loginInput.focus(), 100);
+}
+function hideLogin(){ els.loginModal.classList.remove("open"); }
+
+function setupCloudHandlers(){
+  els.loginBtn.addEventListener("click", ()=>{
+    const code = els.loginInput.value.trim().toUpperCase();
+    if(!code) return;
+    tryLogin(code);
+  });
+  els.loginInput.addEventListener("keydown", e=>{ if(e.key === "Enter") els.loginBtn.click(); });
+  els.loginInput.addEventListener("input", e=>{ e.target.value = e.target.value.toUpperCase(); });
+  els.loginSkip.addEventListener("click", ()=>{
+    hideLogin();
+    setSyncStatus("offline", "Hors ligne");
+    toast("Mode local — les modifs ne seront pas synchronisées");
+  });
+  els.btnLogout.addEventListener("click", logout);
+}
+function makeDraft(){ return { id:uid(), mode:"team", name:"", formation:"4-3-3", positions: Array(11).fill(null).map(()=>({code:null})), answerCode:null }; }
+
+function migrateCard(c){
+  // Mode par défaut = team (ancien comportement)
+  if(!c.mode) c.mode = "team";
+  // Anciennes positions {flag:"fr"} → {code:"fr"}
+  c.positions = (c.positions || []).map(p => {
+    if(!p) return {code:null};
+    return { code: p.code != null ? p.code : (p.flag != null ? p.flag : (p.club != null ? p.club : null)) };
+  });
+  while(c.positions.length < 11) c.positions.push({code:null});
+  c.positions.length = 11;
+  if(c.answerCode === undefined) c.answerCode = null;
+  return c;
+}
+
+function escapeHtml(s){ return String(s||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+/* =========================================================================
+   RENDERING — TikTok stage
+   ========================================================================= */
+function pitchSVG(){
+  return `<svg class="pitch-svg" viewBox="0 0 100 160" preserveAspectRatio="none" aria-hidden="true">
+    <rect x="2" y="2" width="96" height="156" rx="1.4" ry="1.4"/>
+    <line x1="2" y1="80" x2="98" y2="80"/>
+    <circle cx="50" cy="80" r="11"/>
+    <circle cx="50" cy="80" r=".6" fill="rgba(255,255,255,.85)"/>
+    <rect x="28" y="2" width="44" height="18"/>
+    <rect x="38" y="2" width="24" height="8"/>
+    <path d="M 28 20 A 11 11 0 0 0 72 20"/>
+    <rect x="28" y="140" width="44" height="18"/>
+    <rect x="38" y="150" width="24" height="8"/>
+    <path d="M 28 140 A 11 11 0 0 1 72 140"/>
+  </svg>`;
+}
+
+function renderCard(card, opts={}){
+  const positions = FORMATIONS[card.formation] || FORMATIONS["4-3-3"];
+  const fills = card.positions || [];
+  const mode = card.mode || "team";
+  const showSpeech = opts.showSpeech !== false;
+  const stepFraction = opts.total ? (opts.step / opts.total) : 0;
+  const theme = state.settings.stageTheme || "red";
+
+  // Sur les positions : drapeaux (mode team) ou logos clubs (mode nation)
+  const flagsHTML = positions.map((p,i)=>{
+    const code = fills[i] && fills[i].code;
+    const svg = code ? symbolSVG(mode, code) : "";
+    const cls = mode === "nation" ? "stage-flag is-club" : "stage-flag";
+    return `<div class="${cls}" style="left:${p.x}%;top:${p.y}%">${svg}</div>`;
+  }).join("");
+
+  // Au reveal : logo du club (mode team) ou drapeau de la sélection (mode nation)
+  const answerSVG = card.answerCode ? (mode === "team" ? clubBadge(card.answerCode) : flagSVG(card.answerCode)) : "";
+
+  const timerTotal = opts.countdownTotal || 10;
+  const timerPct = opts.countdown != null ? Math.max(0, (opts.countdown / timerTotal) * 100) : 0;
+  const timerCls = opts.countdown != null && opts.countdown <= 3 ? "danger" : (opts.countdown <= 5 ? "warn" : "");
+
+  return `<div class="card-stage${opts.large?' large':''}">
+    <div class="stage-bg theme-${theme}"></div>
+    ${opts.countdown != null ? `<div class="timer-bar"><div class="${timerCls}" style="width:${timerPct}%"></div></div>` : ''}
+    <div class="stage-pitch">
+      ${pitchSVG()}
+      ${flagsHTML}
+    </div>
+    <div class="stage-watermark">${escapeHtml(state.settings.watermark || '')}</div>
+    ${opts.revealed ? `
+      <div class="stage-reveal">
+        <div class="reveal-label">★ Réponse ★</div>
+        ${answerSVG ? `<div class="reveal-symbol ${mode === "team" ? "is-club" : "is-flag"}">${answerSVG}</div>` : ''}
+        <div class="reveal-name">${escapeHtml(card.name || '—')}</div>
+      </div>` : ''}
+    <div class="stage-bottom">
+      <div class="label">${escapeHtml(state.settings.quizTitle || "TROUVE L'EQUIPE")}</div>
+      <div class="progress-bar"><div style="width:${stepFraction*100}%"></div></div>
+      ${opts.total ? `<div class="progress-count">${opts.step} / ${opts.total}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+function renderRecapCard(cards, opts={}){
+  const theme = state.settings.stageTheme || "red";
+  const items = cards.map((c,i)=>`<div class="recap-item"><span class="num">${i+1}.</span><span class="answer">${escapeHtml(c.name || '—')}</span></div>`).join('');
+  return `<div class="card-stage${opts.large?' large':''}">
+    <div class="stage-bg theme-${theme}"></div>
+    <div class="stage-recap">
+      <h1>Récap des <em>réponses</em></h1>
+      <div class="recap-list">${items}</div>
+    </div>
+    <div class="stage-watermark">${escapeHtml(state.settings.watermark || '')}</div>
+  </div>`;
+}
+
+function renderIntroCard(opts={}){
+  const theme = state.settings.stageTheme || "red";
+  return `<div class="card-stage${opts.large?' large':''}">
+    <div class="stage-bg theme-${theme}"></div>
+    <div class="stage-intro">
+      <div class="logo"><div class="name"><span>UNIS</span><span>PAR LE</span><span>FOOT</span></div></div>
+      <h1>Devine<br><em>l'équipe</em></h1>
+      <p>Rien que les nationalités. À toi de jouer 👇</p>
+    </div>
+    <div class="stage-watermark">${escapeHtml(state.settings.watermark || '')}</div>
+  </div>`;
+}
+function renderOutroCard(opts={}){
+  const theme = state.settings.stageTheme || "red";
+  return `<div class="card-stage${opts.large?' large':''}">
+    <div class="stage-bg theme-${theme}"></div>
+    <div class="stage-outro">
+      <div class="logo"><div class="name"><span>UNIS</span><span>PAR LE</span><span>FOOT</span></div></div>
+      <h1>Tu as trouvé<br>la dernière ?</h1>
+      <h2>Dis-le en <em>commentaire</em><br>et abonne-toi !</h2>
+    </div>
+    <div class="stage-watermark">${escapeHtml(state.settings.watermark || '')}</div>
+  </div>`;
+}
+
+/* =========================================================================
+   DOM REFS + EDITOR
+   ========================================================================= */
+const els = {
+  tabs: document.getElementById("tabs"),
+  views: { editor: document.getElementById("view-editor"), list: document.getElementById("view-list"), quiz: document.getElementById("view-quiz") },
+  teamName: document.getElementById("team-name"),
+  formation: document.getElementById("formation"),
+  miniPitch: document.getElementById("mini-pitch"),
+  watermark: document.getElementById("watermark"),
+  quizTitle: document.getElementById("quiz-title"),
+  previewHost: document.getElementById("preview-card-host"),
+  countBadge: document.getElementById("count-badge"),
+  countText: document.getElementById("count-text"),
+  listHost: document.getElementById("list-grid-host"),
+  quizHost: document.getElementById("quiz-card-host"),
+  quizPrev: document.getElementById("quiz-prev"),
+  quizNext: document.getElementById("quiz-next"),
+  quizStepInfo: document.getElementById("quiz-step-info"),
+  qsCount: document.getElementById("qs-count"),
+  qsQuestion: document.getElementById("qs-question"),
+  qsReveal: document.getElementById("qs-reveal"),
+  btnAutoplay: document.getElementById("btn-autoplay"),
+  btnStop: document.getElementById("btn-stop"),
+  btnFullscreen: document.getElementById("btn-fullscreen"),
+  btnReveal: document.getElementById("btn-reveal"),
+  modal: document.getElementById("flag-modal"),
+  flagSearch: document.getElementById("flag-search"),
+  flagGrid: document.getElementById("flag-grid"),
+  flagClose: document.getElementById("flag-close"),
+  flagClear: document.getElementById("flag-clear"),
+  btnSave: document.getElementById("btn-save"),
+  btnNew: document.getElementById("btn-new"),
+  btnDelete: document.getElementById("btn-delete"),
+  btnNewFromList: document.getElementById("btn-new-from-list"),
+  btnImport: document.getElementById("btn-import"),
+  btnExport: document.getElementById("btn-export"),
+  btnDemo: document.getElementById("btn-demo"),
+  fileInput: document.getElementById("file-input"),
+  toast: document.getElementById("toast"),
+  modeHint: document.getElementById("mode-hint"),
+  answerPreview: document.getElementById("answer-preview"),
+  answerLabel: document.getElementById("answer-label"),
+  answerHint: document.getElementById("answer-hint"),
+  // Cloud sync
+  syncIndicator: document.getElementById("sync-indicator"),
+  syncText: document.getElementById("sync-text"),
+  btnLogout: document.getElementById("btn-logout"),
+  loginModal: document.getElementById("login-modal"),
+  loginInput: document.getElementById("login-input"),
+  loginBtn: document.getElementById("login-btn"),
+  loginError: document.getElementById("login-error"),
+  loginSkip: document.getElementById("login-skip"),
+};
+
+function renderEditor(){
+  const d = state.draft; if(!d) return;
+  els.teamName.value = d.name || "";
+  els.formation.value = d.formation || "4-3-3";
+  els.btnDelete.style.display = state.cards.find(c=>c.id===d.id) ? "" : "none";
+  // Mettre à jour les boutons de mode
+  document.querySelectorAll(".mode-opt").forEach(el=>el.classList.toggle("active", el.dataset.mode === (d.mode || "team")));
+  // Labels qui s'adaptent au mode
+  const mode = d.mode || "team";
+  els.teamName.placeholder = mode === "nation" ? "ex. France — Champions du monde 2018" : "ex. Real Madrid 2018 — finale C1";
+  if(els.modeHint) els.modeHint.textContent = mode === "nation"
+    ? "Tu places les clubs où jouaient les joueurs au moment de cette sélection. Le quiz devra deviner la nation."
+    : "Tu places les drapeaux des joueurs sur les 11 positions. Le quiz devra deviner le club.";
+  if(els.answerLabel) els.answerLabel.textContent = mode === "nation" ? "Drapeau de la sélection (la réponse)" : "Logo du club (la réponse)";
+  if(els.answerHint) els.answerHint.textContent = mode === "nation" ? "Drapeau qui apparaîtra à la révélation" : "Logo qui apparaîtra à la révélation";
+  renderAnswerPreview();
+  renderMiniPitch();
+  renderPreview();
+}
+
+function renderAnswerPreview(){
+  const d = state.draft; if(!d || !els.answerPreview) return;
+  const mode = d.mode || "team";
+  const code = d.answerCode;
+  if(!code){
+    els.answerPreview.innerHTML = '<span class="placeholder">+ Choisir</span>';
+    els.answerPreview.classList.remove("filled");
+  } else {
+    els.answerPreview.innerHTML = mode === "team" ? clubBadge(code) : flagSVG(code);
+    els.answerPreview.classList.add("filled");
+  }
+}
+
+function renderMiniPitch(){
+  const d = state.draft;
+  const mode = d.mode || "team";
+  const positions = FORMATIONS[d.formation] || FORMATIONS["4-3-3"];
+  while(d.positions.length < 11) d.positions.push({code:null});
+  d.positions.length = 11;
+  els.miniPitch.querySelectorAll(".pos-slot").forEach(e=>e.remove());
+  positions.forEach((p,i)=>{
+    const slot = document.createElement("button");
+    const filled = d.positions[i] && d.positions[i].code;
+    slot.className = "pos-slot" + (filled ? " filled" : "");
+    slot.style.left = p.x + "%";
+    slot.style.top = p.y + "%";
+    slot.title = "Position " + (i+1);
+    if(filled){ slot.innerHTML = symbolSVG(mode, d.positions[i].code); }
+    else { const ph = document.createElement("span"); ph.className="placeholder"; ph.textContent="+"; slot.appendChild(ph); }
+    slot.addEventListener("click", ()=>{
+      const m = state.draft.mode || "team";
+      openPicker(m === "nation" ? "club" : "flag", {type:"position", idx:i});
+    });
+    els.miniPitch.appendChild(slot);
+  });
+}
+function renderPreview(){ els.previewHost.innerHTML = renderCard(state.draft, {step:1, total:5}); }
+
+/* SYMBOL PICKER — flag ou club selon le contexte */
+let pickerContext = null; // {kind: "flag"|"club", target: {type:"position",idx} | {type:"answer"}}
+
+function openPicker(kind, target){
+  pickerContext = { kind, target };
+  els.flagSearch.value = "";
+  els.modal.querySelector("h2").textContent = kind === "club" ? "Choisir le club" : "Choisir le drapeau";
+  els.flagSearch.placeholder = kind === "club" ? "Rechercher un club…" : "Rechercher un pays…";
+  drawPickerGrid("");
+  els.modal.classList.add("open");
+  setTimeout(()=>els.flagSearch.focus(), 50);
+}
+
+function drawPickerGrid(query){
+  if(!pickerContext) return;
+  const q = query.toLowerCase().trim();
+  const isClub = pickerContext.kind === "club";
+  const source = isClub ? CLUBS_LIST : NATIONS;
+  const list = q ? source.filter(x => x.n.toLowerCase().includes(q) || x.c.includes(q) || (x.league && x.league.toLowerCase().includes(q))) : source;
+  els.flagGrid.innerHTML = list.map(x => `
+    <div class="flag-opt" data-code="${x.c}" title="${escapeHtml(x.league || '')}">
+      <div class="ball">${isClub ? clubBadge(x.c) : flagSVG(x.c)}</div>
+      <div class="name">${escapeHtml(x.n)}</div>
+    </div>`).join("");
+  els.flagGrid.querySelectorAll(".flag-opt").forEach(el=>{
+    el.addEventListener("click", ()=>{ assignSymbol(el.dataset.code); closePicker(); });
+  });
+}
+
+function assignSymbol(code){
+  if(!pickerContext || !state.draft) return;
+  const t = pickerContext.target;
+  if(t.type === "position"){
+    state.draft.positions[t.idx] = { code };
+  } else if(t.type === "answer"){
+    state.draft.answerCode = code;
+  }
+  renderEditor();
+}
+function closePicker(){ els.modal.classList.remove("open"); pickerContext = null; }
+els.flagSearch.addEventListener("input", e => drawPickerGrid(e.target.value));
+els.flagClose.addEventListener("click", closePicker);
+els.flagClear.addEventListener("click", ()=>{ if(pickerContext){ assignSymbol(null); closePicker(); } });
+els.modal.addEventListener("click", e => { if(e.target===els.modal) closePicker(); });
+
+/* LIST */
+function renderList(){
+  els.countBadge.textContent = state.cards.length;
+  els.countText.textContent = state.cards.length === 0 ? "Aucune carte pour l'instant." : `${state.cards.length} carte${state.cards.length>1?'s':''}`;
+  if(state.cards.length === 0){
+    els.listHost.innerHTML = `<div class="empty"><h3>Aucune carte enregistrée</h3><p>Crée ta première équipe dans l'éditeur, ou charge un exemple de démo.</p><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn btn-primary" id="empty-new">➕ Nouvelle carte</button><button class="btn" id="empty-demo">⭐ Charger la démo</button></div></div>`;
+    const en = document.getElementById("empty-new"); if(en) en.addEventListener("click",()=>{newCard();setTab("editor");});
+    const ed = document.getElementById("empty-demo"); if(ed) ed.addEventListener("click", loadDemo);
+    els.listHost.className = "";
+    return;
+  }
+  els.listHost.className = "list-grid";
+  els.listHost.innerHTML = state.cards.map((c, i)=>`
+    <div class="list-card" data-id="${c.id}">
+      <div class="thumb">${renderCard(c, {step:i+1, total:state.cards.length, showSpeech:false})}</div>
+      <div class="meta"><div class="name">${escapeHtml(c.name || "(sans titre)")}</div><div class="formation">${c.formation}</div></div>
+      <div class="actions"><button class="btn" data-act="edit">✏️ Modifier</button><button class="btn btn-danger" data-act="del">🗑️</button></div>
+    </div>`).join("");
+  els.listHost.querySelectorAll(".list-card").forEach(card=>{
+    const id = card.dataset.id;
+    card.querySelector('[data-act=edit]').addEventListener("click", ()=>editCard(id));
+    card.querySelector('[data-act=del]').addEventListener("click", ()=>deleteCard(id));
+  });
+}
+
+/* QUIZ */
+function quizSlides(){ return ["intro", ...state.cards.map(c => c.id), "outro"]; }
+function renderQuiz(){
+  const slides = quizSlides();
+  if(state.quizIndex < 0) state.quizIndex = 0;
+  if(state.quizIndex >= slides.length) state.quizIndex = slides.length-1;
+  const id = slides[state.quizIndex];
+  let html, info;
+  if(id === "intro"){ html = renderIntroCard({large:true}); info = "Intro"; }
+  else if(id === "outro"){ html = renderOutroCard({large:true}); info = "Outro"; }
+  else {
+    const card = state.cards.find(c=>c.id===id);
+    if(!card){ html=`<div style="color:#999">Carte introuvable</div>`; info=""; }
+    else{
+      const step = state.quizIndex, total = state.cards.length;
+      const revealed = !!state.quizRevealed[id];
+      html = renderCard(card, {large:true, step, total, revealed, showSpeech:!revealed});
+      info = `Carte ${step} / ${total}`;
+    }
+  }
+  els.quizHost.innerHTML = html;
+  // Bouton Révéler externe (sous la carte) — visible uniquement sur carte question non révélée
+  const isQuestion = id !== "intro" && id !== "outro";
+  const isRevealed = isQuestion && !!state.quizRevealed[id];
+  els.btnReveal.style.display = (isQuestion && !isRevealed) ? "" : "none";
+  els.btnReveal.dataset.cardId = isQuestion ? id : "";
+  els.quizStepInfo.textContent = info;
+  els.quizPrev.disabled = state.quizIndex === 0;
+  els.quizNext.disabled = state.quizIndex === slides.length-1;
+}
+els.btnReveal.addEventListener("click", ()=>{
+  const id = els.btnReveal.dataset.cardId;
+  if(!id) return;
+  state.quizRevealed[id] = true;
+  renderQuiz();
+});
+els.quizPrev.addEventListener("click", ()=>{ stopAutoPlay(); state.quizIndex--; renderQuiz(); });
+els.quizNext.addEventListener("click", ()=>{ stopAutoPlay(); state.quizIndex++; renderQuiz(); });
+document.addEventListener("keydown", e=>{
+  if(!els.views.quiz.classList.contains("active")) return;
+  if(e.target.tagName === "INPUT") return;
+  if(e.key === "ArrowLeft"){ stopAutoPlay(); if(state.quizIndex>0){state.quizIndex--; renderQuiz();} }
+  else if(e.key === "ArrowRight"){ stopAutoPlay(); const s=quizSlides(); if(state.quizIndex<s.length-1){state.quizIndex++; renderQuiz();} }
+  else if(e.key.toLowerCase() === "r"){
+    stopAutoPlay();
+    const id = quizSlides()[state.quizIndex];
+    if(id !== "intro" && id !== "outro"){ state.quizRevealed[id] = !state.quizRevealed[id]; renderQuiz(); }
+  }
+  else if(e.key === " "){
+    e.preventDefault();
+    if(state.autoPlay.running) stopAutoPlay(); else startAutoPlay();
+  }
+  else if(e.key.toLowerCase() === "f"){
+    const stage = els.quizHost.querySelector(".card-stage");
+    if(stage && document.fullscreenEnabled){ if(document.fullscreenElement) document.exitFullscreen(); else stage.requestFullscreen(); }
+  }
+});
+
+/* ============ AUTO-PLAY ============ */
+function selectedCards(){
+  const max = Math.max(1, Math.min(20, parseInt(els.qsCount.value) || 6));
+  return state.cards.slice(0, max);
+}
+
+function startAutoPlay(){
+  const cards = selectedCards();
+  if(cards.length === 0){ toast("Aucune carte à jouer — crée d'abord des cartes."); return; }
+  state.autoPlay.running = true;
+  state.autoPlay.phase = "intro";
+  state.autoPlay.idx = 0;
+  state.autoPlay.timeLeft = TIMINGS.intro;
+  state.quizRevealed = {};
+  els.btnAutoplay.style.display = "none";
+  els.btnStop.style.display = "";
+  els.btnReveal.style.display = "none";
+  els.quizPrev.disabled = true;
+  els.quizNext.disabled = true;
+  renderAutoPlay();
+  // Plein écran automatique pour l'enregistrement vidéo
+  enterPresentationMode();
+  state.autoPlay.tickId = setInterval(tickAutoPlay, 100);
+}
+
+function enterPresentationMode(){
+  // Mode présentation via CSS (marche sur iOS Safari + tous les browsers)
+  els.views.quiz.classList.add("presenting");
+  document.body.classList.add("presenting-mode");
+  // Active le tap-to-show pour la croix
+  els.views.quiz.addEventListener("click", handlePresentationTap);
+  // Tente en plus le vrai fullscreen natif sur desktop (bonus, ignore si refusé)
+  const target = els.views.quiz;
+  if(document.fullscreenEnabled && target.requestFullscreen && !document.fullscreenElement){
+    target.requestFullscreen().catch(()=>{}); // silencieux si refusé (ex: iOS Safari)
+  }
+}
+
+function exitPresentationMode(){
+  els.views.quiz.classList.remove("presenting","show-exit");
+  document.body.classList.remove("presenting-mode");
+  els.views.quiz.removeEventListener("click", handlePresentationTap);
+  if(presentationTapTimer){ clearTimeout(presentationTapTimer); presentationTapTimer = null; }
+  if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+}
+
+let presentationTapTimer = null;
+function handlePresentationTap(e){
+  // Si on a tapé sur la croix elle-même, ne pas la re-cacher (laisser son click handler agir)
+  if(e.target.closest(".exit-presentation")) return;
+  els.views.quiz.classList.add("show-exit");
+  if(presentationTapTimer) clearTimeout(presentationTapTimer);
+  presentationTapTimer = setTimeout(()=>{
+    els.views.quiz.classList.remove("show-exit");
+    presentationTapTimer = null;
+  }, 2500);
+}
+
+function stopAutoPlay(){
+  if(!state.autoPlay.running) return;
+  clearInterval(state.autoPlay.tickId);
+  state.autoPlay.tickId = null;
+  state.autoPlay.running = false;
+  state.autoPlay.phase = "idle";
+  els.btnAutoplay.style.display = "";
+  els.btnStop.style.display = "none";
+  exitPresentationMode();
+  renderQuiz();
+}
+
+function tickAutoPlay(){
+  const ap = state.autoPlay;
+  ap.timeLeft -= 0.1;
+  if(ap.timeLeft <= 0){
+    advancePhase();
+  } else if(ap.phase === "question"){
+    const bar = els.quizHost.querySelector(".timer-bar > div");
+    if(bar){
+      const dQuestion = Math.max(3, Math.min(30, parseInt(els.qsQuestion.value) || 10));
+      const pct = Math.max(0, (ap.timeLeft / dQuestion) * 100);
+      bar.style.width = pct + "%";
+      bar.classList.toggle("danger", ap.timeLeft <= 3);
+      bar.classList.toggle("warn", ap.timeLeft > 3 && ap.timeLeft <= 5);
+    }
+  }
+}
+
+function advancePhase(){
+  const ap = state.autoPlay;
+  const cards = selectedCards();
+  const dQuestion = Math.max(3, Math.min(30, parseInt(els.qsQuestion.value) || 10));
+  const dReveal = Math.max(1, Math.min(10, parseInt(els.qsReveal.value) || 3));
+
+  if(ap.phase === "intro"){
+    ap.phase = "question";
+    ap.idx = 0;
+    ap.timeLeft = dQuestion;
+  }
+  else if(ap.phase === "question"){
+    ap.phase = "reveal";
+    state.quizRevealed[cards[ap.idx].id] = true;
+    ap.timeLeft = dReveal;
+  }
+  else if(ap.phase === "reveal"){
+    ap.idx++;
+    if(ap.idx >= cards.length){
+      ap.phase = "recap";
+      ap.timeLeft = TIMINGS.recap;
+    } else {
+      ap.phase = "question";
+      ap.timeLeft = dQuestion;
+    }
+  }
+  else if(ap.phase === "recap"){
+    ap.phase = "outro";
+    ap.timeLeft = TIMINGS.outro;
+  }
+  else if(ap.phase === "outro"){
+    stopAutoPlay();
+    toast("Lecture terminée ✓");
+    return;
+  }
+  renderAutoPlay();
+}
+
+function renderAutoPlay(){
+  const ap = state.autoPlay;
+  const cards = selectedCards();
+  let html, info;
+
+  if(ap.phase === "intro"){
+    html = renderIntroCard({large:true});
+    info = `Intro · ${Math.ceil(ap.timeLeft)}s`;
+  }
+  else if(ap.phase === "recap"){
+    html = renderRecapCard(cards, {large:true});
+    info = `Récap · ${Math.ceil(ap.timeLeft)}s`;
+  }
+  else if(ap.phase === "outro"){
+    html = renderOutroCard({large:true});
+    info = `Outro · ${Math.ceil(ap.timeLeft)}s`;
+  }
+  else {
+    const card = cards[ap.idx];
+    const step = ap.idx + 1;
+    const total = cards.length;
+    const revealed = ap.phase === "reveal";
+    const dQuestion = Math.max(3, Math.min(30, parseInt(els.qsQuestion.value) || 10));
+    html = renderCard(card, {
+      large:true, step, total, revealed,
+      showSpeech: !revealed,
+      countdown: ap.phase === "question" ? ap.timeLeft : null,
+      countdownTotal: dQuestion,
+    });
+    info = `Carte ${step}/${total} · ${ap.phase === "question" ? "Question" : "Réponse"}`;
+  }
+
+  els.quizHost.innerHTML = html;
+  els.quizStepInfo.textContent = info;
+}
+
+// Bindings auto-play
+els.btnAutoplay.addEventListener("click", startAutoPlay);
+els.btnStop.addEventListener("click", stopAutoPlay);
+els.btnFullscreen.addEventListener("click", ()=>{
+  if(els.views.quiz.classList.contains("presenting") || document.fullscreenElement){
+    exitPresentationMode();
+  } else {
+    enterPresentationMode();
+  }
+});
+
+// Bouton ✕ visible en mode présentation
+document.getElementById("btn-exit-presentation").addEventListener("click", ()=>{
+  if(state.autoPlay.running) stopAutoPlay();
+  else exitPresentationMode();
+});
+
+// Sortir gracieusement quand l'utilisateur quitte le plein écran (Esc, etc.)
+document.addEventListener("fullscreenchange", ()=>{
+  if(!document.fullscreenElement && state.autoPlay.running){
+    // L'utilisateur a quitté le fullscreen pendant la lecture auto → stop
+    stopAutoPlay();
+  }
+});
+
+// Persist quiz settings on change
+[els.qsCount, els.qsQuestion, els.qsReveal].forEach(inp=>{
+  inp.addEventListener("change", ()=>{
+    state.settings.maxCards = parseInt(els.qsCount.value) || 6;
+    state.settings.dQuestion = parseInt(els.qsQuestion.value) || 10;
+    state.settings.dReveal = parseInt(els.qsReveal.value) || 3;
+    save();
+  });
+});
+
+/* ACTIONS */
+function newCard(){ state.draft = makeDraft(); renderEditor(); }
+function editCard(id){ const c = state.cards.find(x=>x.id===id); if(!c) return; state.draft = JSON.parse(JSON.stringify(c)); renderEditor(); setTab("editor"); }
+function deleteCard(id){
+  if(!confirm("Supprimer cette carte ?")) return;
+  state.cards = state.cards.filter(c=>c.id!==id);
+  if(state.draft && state.draft.id === id) state.draft = makeDraft();
+  save(); renderList(); renderEditor();
+  toast("Carte supprimée");
+}
+function saveCard(){
+  const d = state.draft; if(!d) return;
+  if(!d.name || !d.name.trim()){ toast("Donne un nom à l'équipe avant d'enregistrer"); els.teamName.focus(); return; }
+  const idx = state.cards.findIndex(c=>c.id===d.id);
+  if(idx>=0) state.cards[idx] = JSON.parse(JSON.stringify(d));
+  else state.cards.push(JSON.parse(JSON.stringify(d)));
+  save(); renderList();
+  toast(idx>=0 ? "Carte mise à jour" : "Carte enregistrée");
+  renderEditor();
+}
+els.btnSave.addEventListener("click", saveCard);
+els.btnNew.addEventListener("click", newCard);
+els.btnNewFromList.addEventListener("click", ()=>{newCard(); setTab("editor");});
+els.btnDelete.addEventListener("click", ()=>{ if(state.draft) deleteCard(state.draft.id); });
+els.teamName.addEventListener("input", e=>{ if(state.draft){ state.draft.name = e.target.value; renderPreview(); } });
+els.formation.addEventListener("change", e=>{ if(state.draft){ state.draft.formation = e.target.value; renderMiniPitch(); renderPreview(); } });
+
+// Mode picker — bascule entre "team" et "nation"
+document.querySelectorAll(".mode-opt").forEach(el=>{
+  el.addEventListener("click", ()=>{
+    if(!state.draft) return;
+    const newMode = el.dataset.mode;
+    if(state.draft.mode === newMode) return;
+    // Si on change de mode, on demande confirmation si des positions sont déjà remplies (sinon on perd les données)
+    const hasData = state.draft.positions.some(p=>p && p.code) || state.draft.answerCode;
+    if(hasData && !confirm("Changer de mode va vider les positions et la réponse (les drapeaux et logos ne sont pas compatibles entre les modes). Continuer ?")){
+      return;
+    }
+    state.draft.mode = newMode;
+    state.draft.positions = Array(11).fill(null).map(()=>({code:null}));
+    state.draft.answerCode = null;
+    renderEditor();
+  });
+});
+
+// Answer preview — clique pour ouvrir le picker opposé du mode
+els.answerPreview.addEventListener("click", ()=>{
+  if(!state.draft) return;
+  const mode = state.draft.mode || "team";
+  // En mode team, la réponse est un club. En mode nation, la réponse est un drapeau.
+  openPicker(mode === "team" ? "club" : "flag", {type:"answer"});
+});
+els.watermark.addEventListener("input", e=>{ state.settings.watermark = e.target.value; save(); renderPreview(); });
+els.quizTitle.addEventListener("input", e=>{ state.settings.quizTitle = e.target.value; save(); renderPreview(); });
+
+/* Theme picker */
+function setStageTheme(theme){
+  state.settings.stageTheme = theme;
+  document.querySelectorAll(".theme-opt").forEach(el=>el.classList.toggle("active", el.dataset.theme===theme));
+  save();
+  renderPreview();
+}
+document.querySelectorAll(".theme-opt").forEach(el=>{
+  el.addEventListener("click", ()=>setStageTheme(el.dataset.theme));
+});
+
+/* EXPORT / IMPORT / DEMO */
+function exportJSON(){
+  const data = { v:2, cards: state.cards, settings: state.settings };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type:"application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = `trouve-equipe-${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  toast("Export téléchargé");
+}
+function importJSON(file){
+  const reader = new FileReader();
+  reader.onload = e => {
+    try{
+      const d = JSON.parse(e.target.result);
+      if(Array.isArray(d.cards)){
+        if(state.cards.length && !confirm("Remplacer les cartes existantes par celles du fichier ?")) return;
+        state.cards = d.cards;
+        if(d.settings) state.settings = Object.assign(state.settings, d.settings);
+        save(); renderList();
+        toast(`${d.cards.length} cartes importées`);
+      } else { toast("Fichier invalide"); }
+    } catch(err){ toast("Erreur de lecture"); }
+  };
+  reader.readAsText(file);
+}
+els.btnExport.addEventListener("click", exportJSON);
+els.btnImport.addEventListener("click", ()=>els.fileInput.click());
+els.fileInput.addEventListener("change", e=>{ const f = e.target.files[0]; if(f) importJSON(f); e.target.value=""; });
+els.btnDemo.addEventListener("click", loadDemo);
+
+/* Menu déroulant mobile (bouton ⋯) */
+const btnMenu = document.getElementById("btn-menu");
+const toolbarActions = document.getElementById("toolbar-actions");
+if(btnMenu && toolbarActions){
+  btnMenu.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    const isOpen = toolbarActions.classList.toggle("open");
+    btnMenu.classList.toggle("open", isOpen);
+    btnMenu.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  });
+  // Fermer en cliquant ailleurs
+  document.addEventListener("click", (e)=>{
+    if(!toolbarActions.contains(e.target) && e.target !== btnMenu){
+      toolbarActions.classList.remove("open");
+      btnMenu.classList.remove("open");
+      btnMenu.setAttribute("aria-expanded", "false");
+    }
+  });
+  // Fermer après un click sur une action interne
+  toolbarActions.querySelectorAll(".btn").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      toolbarActions.classList.remove("open");
+      btnMenu.classList.remove("open");
+      btnMenu.setAttribute("aria-expanded", "false");
+    });
+  });
+}
+
+function loadDemo(){
+  if(state.cards.length && !confirm("Remplacer les cartes actuelles par la démo ?")) return;
+  state.cards = [
+    // === Mode TROUVE LE CLUB ===
+    {id:uid(), mode:"team", name:"Real Madrid 2018", formation:"4-3-3", answerCode:"real-madrid",
+     positions:[{code:"cr"},{code:"es"},{code:"es"},{code:"fr"},{code:"br"},{code:"de"},{code:"hr"},{code:"br"},{code:"pt"},{code:"fr"},{code:"gb-wls"}]},
+    {id:uid(), mode:"team", name:"PSG 2023-24", formation:"4-3-3", answerCode:"psg",
+     positions:[{code:"it"},{code:"ma"},{code:"br"},{code:"es"},{code:"pt"},{code:"pt"},{code:"es"},{code:"fr"},{code:"fr"},{code:"fr"},{code:"pt"}]},
+    {id:uid(), mode:"team", name:"Inter 2010 — Triplete", formation:"4-2-3-1", answerCode:"inter-milan",
+     positions:[{code:"br"},{code:"co"},{code:"ar"},{code:"ar"},{code:"br"},{code:"ar"},{code:"nl"},{code:"rs"},{code:"nl"},{code:"ro"},{code:"ar"}]},
+    // === Mode TROUVE LA SELECTION ===
+    {id:uid(), mode:"nation", name:"France 2018 — Champions du monde", formation:"4-2-3-1", answerCode:"fr",
+     positions:[{code:"tottenham"},{code:"vfb-stuttgart"},{code:"real-madrid"},{code:"barcelone"},{code:"atletico-madrid"},{code:"chelsea"},{code:"manchester-united"},{code:"juventus"},{code:"psg"},{code:"atletico-madrid"},{code:"chelsea"}]},
+    {id:uid(), mode:"nation", name:"Argentine 2022 — Champions du monde", formation:"4-4-2", answerCode:"ar",
+     positions:[{code:"aston-villa"},{code:"atletico-madrid"},{code:"tottenham"},{code:"manchester-city"},{code:"benfica"},{code:"liverpool"},{code:"juventus"},{code:"atletico-madrid"},{code:"al-nassr"},{code:"psg"},{code:"manchester-city"}]},
+  ];
+  save(); renderList(); setTab("list");
+  toast("5 cartes de démo chargées");
+}
+
+/* TABS */
+function setTab(name){
+  // Arrêter la lecture auto si on quitte le quiz
+  if(name !== "quiz") stopAutoPlay();
+  els.tabs.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active", t.dataset.tab===name));
+  for(const k in els.views){ els.views[k].classList.toggle("active", k===name); }
+  if(name === "list") renderList();
+  if(name === "quiz") { state.quizIndex = 0; state.quizRevealed = {}; renderQuiz(); }
+}
+els.tabs.addEventListener("click", e=>{ const t = e.target.closest(".tab"); if(t) setTab(t.dataset.tab); });
+
+/* TOAST */
+let toastTimer;
+function toast(msg){
+  els.toast.textContent = msg;
+  els.toast.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>els.toast.classList.remove("show"), 2200);
+}
+
+/* BOOT */
+load();
+state.draft = makeDraft();
+els.watermark.value = state.settings.watermark;
+els.quizTitle.value = state.settings.quizTitle;
+els.qsCount.value = state.settings.maxCards || 6;
+els.qsQuestion.value = state.settings.dQuestion || 10;
+els.qsReveal.value = state.settings.dReveal || 3;
+setStageTheme(state.settings.stageTheme || "red");
+renderEditor();
+renderList();
+
+// Init cloud sync UI (event handlers qui touchent els)
+setupCloudHandlers();
+
+// Auto-login si code stocké, sinon afficher la modal
+const storedCode = localStorage.getItem(cloud.ACCESS_STORE_KEY);
+if(storedCode){
+  tryLogin(storedCode);
+} else {
+  showLogin();
+}
+</script>
+</body>
+</html>
