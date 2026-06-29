@@ -1,1 +1,12 @@
+# netlify.toml — config pour Trouve l'Équipe
 
+[build]
+  functions = "netlify/functions"
+  publish = "."
+
+# Redirige /api/save-state → /.netlify/functions/save-state
+# (et idem pour les autres functions)
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
